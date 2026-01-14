@@ -6,6 +6,10 @@
     [formControlName]="field().name"
     type="number"
     [placeholder]="placeholder()"
+    [min]="min() ?? null"
+    [max]="max() ?? null"
+    [step]="step() ?? null"
+    (input)="onInput($event)"
     [attr.aria-required]="required()"
     [attr.aria-invalid]="isInvalid()"
     [attr.aria-describedby]="ariaDescribedBy()">

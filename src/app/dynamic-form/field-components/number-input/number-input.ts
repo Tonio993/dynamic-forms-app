@@ -38,4 +38,41 @@ export class NumberInputComponent {
   readonly min = computed(() => this.config().min);
   readonly max = computed(() => this.config().max);
   readonly step = computed(() => this.config().step);
+
+  /**
+   * Handle input events to enforce min/max constraints
+   * Prevents users from entering values outside the allowed range
+   */
+  onInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = parseFloat(input.value);
+
+    // If value is NaN or empty, allow it (for clearing the field)
+    if (isNaN(value) || input.value === '') {
+      return;
+    }
+
+    const minValue = this.min();
+    const maxValue = this.max();
+
+    // Clamp value to min if it's below minimum
+    if (minValue !== undefined && value < minValue) {
+      input.value = minValue.toString();
+      const control = this.formGroup().get(this.field().name);
+      if (control) {
+        control.setValue(minValue, { emitEvent: true });
+      }
+      return;
+    }
+
+    // Clamp value to max if it's above maximum
+    if (maxValue !== undefined && value > maxValue) {
+      input.value = maxValue.toString();
+      const control = this.formGroup().get(this.field().name);
+      if (control) {
+        control.setValue(maxValue, { emitEvent: true });
+      }
+      return;
+    }
+  }
 }
