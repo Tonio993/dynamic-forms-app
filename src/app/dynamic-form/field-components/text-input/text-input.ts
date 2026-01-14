@@ -1,36 +1,38 @@
-import { Component, input, computed, inject } from '@angular/core';
-import { ControlContainer, ReactiveFormsModule, FormGroup } from '@angular/forms';
+import { Component, input, computed } from '@angular/core';
+import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormField } from '../../../models/form-config.model';
+import { FieldComponentUtils } from '../base-field.component';
+import { FIELD_COMPONENT_VIEW_PROVIDERS } from '../field-component-constants';
+
+/**
+ * Text input component configuration
+ */
+export interface TextInputConfig {
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+}
 
 @Component({
   selector: 'app-text-input',
   standalone: true,
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],
-  viewProviders: [
-    {
-      provide: ControlContainer,
-      useFactory: () => inject(ControlContainer, { skipSelf: true })
-    }
-  ],
+  viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './text-input.html',
   styleUrls: ['./text-input.css']
 })
 export class TextInputComponent {
-  field = input.required<FormField>();
-  formGroup = input.required<FormGroup>();
-  isInvalid = input.required<boolean>();
-  formId = input<string>('');
+  readonly field = input.required<FormField>();
+  readonly formGroup = input.required<FormGroup>();
+  readonly isInvalid = input.required<boolean>();
+  readonly formId = input<string>('');
 
-  fieldId = computed(() => {
-    const id = this.formId() || 'field';
-    return `${id}-${this.field().name}`;
-  });
-  placeholder = computed(() => this.field().placeholder || '');
-  required = computed(() => this.field().required ?? false);
-  label = computed(() => this.field().label || this.field().name);
-  ariaDescribedBy = computed(() => 
-    this.isInvalid() ? `${this.fieldId()}-error` : null
-  );
+  readonly fieldId = FieldComponentUtils.createFieldId(this.formId, this.field);
+  readonly placeholder = FieldComponentUtils.createPlaceholder(this.field);
+  readonly required = FieldComponentUtils.createRequired(this.field);
+  readonly label = FieldComponentUtils.createLabel(this.field);
+  readonly ariaDescribedBy = FieldComponentUtils.createAriaDescribedBy(this.isInvalid, this.fieldId);
+  readonly config = computed(() => (this.field().config || {}) as TextInputConfig);
 }
