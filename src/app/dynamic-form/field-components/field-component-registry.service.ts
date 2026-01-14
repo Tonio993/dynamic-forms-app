@@ -1,20 +1,19 @@
-import { Injectable } from '@angular/core';
-import { Type } from '@angular/core';
+import { Injectable, Type } from '@angular/core';
 
 /**
  * Service for registering and retrieving field components by type
- * Components register themselves when they are instantiated
+ * Components are registered via the FieldComponentsRegistryComponent
  */
 @Injectable({
   providedIn: 'root'
 })
 export class FieldComponentRegistryService {
-  private readonly registry = new Map<string, Type<any>>();
+  private readonly registry = new Map<string, Type<unknown>>();
 
   /**
    * Register a component for a specific field type
    */
-  register(fieldType: string, component: Type<any>): void {
+  register(fieldType: string, component: Type<unknown>): void {
     if (this.registry.has(fieldType)) {
       console.warn(`Component for field type '${fieldType}' is already registered. Overwriting...`);
     }
@@ -24,7 +23,7 @@ export class FieldComponentRegistryService {
   /**
    * Get component for a specific field type
    */
-  get(fieldType: string): Type<any> | null {
+  get(fieldType: string): Type<unknown> | null {
     return this.registry.get(fieldType) || null;
   }
 
