@@ -67,7 +67,7 @@ export class DynamicFormComponent {
   getValidators(field: FormField): any[] {
     const validators: any[] = [];
 
-    if (field.required) {
+    if (field.required === true) {
       validators.push(Validators.required);
     }
 
