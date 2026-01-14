@@ -4,7 +4,7 @@
     [formControlName]="field().name"
     [class.mat-checkbox-invalid]="isInvalid()">
     <span class="checkbox-label">{{ placeholder() || label() }}</span>
-    @if (field().required) {
+    @if (field().required === true) {
       <span class="required-indicator">*</span>
     }
   </mat-checkbox>

@@ -26,7 +26,7 @@ export class RadioInputComponent {
     const id = this.formId() || 'field';
     return `${id}-${this.field().name}`;
   });
-  required = computed(() => this.field().required);
+  required = computed(() => this.field().required ?? false);
   label = computed(() => this.field().label || this.field().name);
   options = computed(() => this.field().options || []);
   optionId = (option: string) => `${this.fieldId()}-${option}`;

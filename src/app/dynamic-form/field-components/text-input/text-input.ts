@@ -28,7 +28,7 @@ export class TextInputComponent {
     return `${id}-${this.field().name}`;
   });
   placeholder = computed(() => this.field().placeholder || '');
-  required = computed(() => this.field().required);
+  required = computed(() => this.field().required ?? false);
   label = computed(() => this.field().label || this.field().name);
   ariaDescribedBy = computed(() => 
     this.isInvalid() ? `${this.fieldId()}-error` : null
