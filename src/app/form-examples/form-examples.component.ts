@@ -1,17 +1,31 @@
 import { Component, signal, computed } from '@angular/core';
 import { JsonPipe } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
 import { FormConfig } from '../models/form-config.model';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
+// Import all components to ensure they register themselves when the module loads
+import '../dynamic-form/field-components/field-components';
 
 @Component({
   selector: 'app-form-examples',
   standalone: true,
-  imports: [DynamicFormComponent, JsonPipe],
+  imports: [
+    DynamicFormComponent,
+    JsonPipe,
+    MatTabsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatDividerModule
+  ],
   templateUrl: './form-examples.component.html',
   styleUrls: ['./form-examples.component.css']
 })
 export class FormExamplesComponent {
   selectedExample = signal<string>('registration');
+  selectedTabIndex = 0;
 
   examples: { [key: string]: FormConfig } = {
     registration: {
@@ -294,6 +308,14 @@ export class FormExamplesComponent {
 
   selectExample(exampleKey: string): void {
     this.selectedExample.set(exampleKey);
+  }
+
+  onTabChange(index: number): void {
+    const keys = this.exampleKeys();
+    if (keys[index]) {
+      this.selectedExample.set(keys[index]);
+      this.selectedTabIndex = index;
+    }
   }
 
   getExampleTitle(key: string): string {

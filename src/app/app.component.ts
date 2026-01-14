@@ -1,12 +1,23 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
 import { FormConfig } from './models/form-config.model';
 import { DynamicFormComponent } from './dynamic-form/dynamic-form.component';
 import { FormExamplesComponent } from './form-examples/form-examples.component';
+// Import all components to ensure they register themselves when the module loads
+import './dynamic-form/field-components/field-components';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [DynamicFormComponent, FormExamplesComponent],
+  imports: [
+    DynamicFormComponent,
+    FormExamplesComponent,
+    MatButtonModule,
+    MatToolbarModule,
+    MatIconModule
+  ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
