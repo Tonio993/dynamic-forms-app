@@ -43,8 +43,8 @@ Thumbs.db
 
 # Temporary documentation and git files
 .gitmessage
-GIT_COMMITS.md
-REFACTORING_SUMMARY.md
+*.md
+!README.md
 
 # Legacy/unused field component files
 src/app/dynamic-form/field-components/base-field.component.ts
