@@ -1,0 +1,31 @@
+<div class="examples-container">
+  <div class="examples-header">
+    <h1>Dynamic Form Examples</h1>
+    <p class="subtitle">Explore different form configurations powered by JSON</p>
+  </div>
+
+  <div class="examples-tabs">
+    @for (key of exampleKeys(); track key) {
+      <button
+        [class.active]="selectedExample() === key"
+        (click)="selectExample(key)"
+        class="tab-button">
+        {{ getExampleTitle(key) }}
+      </button>
+    }
+  </div>
+
+  <div class="example-content">
+    <div class="example-info">
+      <h2>{{ currentFormConfig().name }}</h2>
+      <p class="example-description">{{ getExampleDescription(selectedExample()) }}</p>
+    </div>
+
+    <app-dynamic-form [formConfig]="currentFormConfig()"></app-dynamic-form>
+
+    <div class="json-preview">
+      <h3>JSON Configuration</h3>
+      <pre><code>{{ currentFormConfig() | json }}</code></pre>
+    </div>
+  </div>
+</div>
