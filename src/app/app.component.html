@@ -1,0 +1,36 @@
+<div class="app-container">
+  <nav class="app-nav">
+    <div class="nav-content">
+      <h1 class="nav-title">Dynamic Forms</h1>
+      <div class="nav-buttons">
+        <button
+          [class.active]="currentView() === 'main'"
+          (click)="showMain()"
+          class="nav-button">
+          Main Form
+        </button>
+        <button
+          [class.active]="currentView() === 'examples'"
+          (click)="showExamples()"
+          class="nav-button">
+          Examples
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="app-content">
+    @if (currentView() === 'main') {
+      <div class="main-view">
+        <h2>Dynamic Forms Demo</h2>
+        <app-dynamic-form [formConfig]="formConfig"></app-dynamic-form>
+      </div>
+    }
+
+    @if (currentView() === 'examples') {
+      <div class="examples-view">
+        <app-form-examples></app-form-examples>
+      </div>
+    }
+  </div>
+</div>
