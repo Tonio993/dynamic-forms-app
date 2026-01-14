@@ -6,7 +6,7 @@ export interface Constraint {
 export interface FormField {
   name: string;
   type: string; // 'text', 'number', 'email', 'date', 'password', 'textarea', 'select', 'checkbox', 'radio'
-  required: boolean;
+  required?: boolean; // Optional: defaults to false if not provided
   constraints?: Constraint[];
   options?: string[]; // For select, radio types
   label?: string; // Display label (defaults to name if not provided)
