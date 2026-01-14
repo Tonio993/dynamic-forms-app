@@ -65,7 +65,8 @@ export class AppComponent {
         placeholder: "Enter your age",
         config: {
           min: 18,
-          max: 120
+          max: 120,
+          valueFrom: 0
         }
       },
       {

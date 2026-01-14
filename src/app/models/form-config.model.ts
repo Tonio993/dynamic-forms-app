@@ -1,3 +1,5 @@
+import { ValidatorFn } from '@angular/forms';
+
 /**
  * Supported field types for dynamic forms
  */
@@ -22,6 +24,7 @@ export interface FormField {
   type: FieldType;
   required?: boolean; // Optional: defaults to false if not provided
   config?: Record<string, unknown>; // Component-specific configuration
+  validators?: ValidatorFn | ValidatorFn[]; // Custom validators to apply to the field
   label?: string; // Display label (defaults to name if not provided)
   placeholder?: string;
 }
