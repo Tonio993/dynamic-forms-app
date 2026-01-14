@@ -1,36 +1,29 @@
 <div class="app-container">
-  <nav class="app-nav">
-    <div class="nav-content">
-      <h1 class="nav-title">Dynamic Forms</h1>
-      <div class="nav-buttons">
-        <button
-          [class.active]="currentView() === 'main'"
-          (click)="showMain()"
-          class="nav-button">
-          Main Form
-        </button>
-        <button
-          [class.active]="currentView() === 'examples'"
-          (click)="showExamples()"
-          class="nav-button">
-          Examples
-        </button>
-      </div>
-    </div>
-  </nav>
+  <mat-toolbar color="primary">
+    <span>Dynamic Forms App</span>
+    <span class="spacer"></span>
+    <button
+      mat-icon-button
+      [class.active]="currentView() === 'main'"
+      (click)="showMain()"
+      aria-label="Main view">
+      <mat-icon>home</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      [class.active]="currentView() === 'examples'"
+      (click)="showExamples()"
+      aria-label="Examples view">
+      <mat-icon>view_list</mat-icon>
+    </button>
+  </mat-toolbar>
 
-  <div class="app-content">
+  <main class="main-content">
     @if (currentView() === 'main') {
-      <div class="main-view">
-        <h2>Dynamic Forms Demo</h2>
-        <app-dynamic-form [formConfig]="formConfig"></app-dynamic-form>
-      </div>
+      <app-dynamic-form [formConfig]="formConfig"></app-dynamic-form>
     }
-
     @if (currentView() === 'examples') {
-      <div class="examples-view">
-        <app-form-examples></app-form-examples>
-      </div>
+      <app-form-examples></app-form-examples>
     }
-  </div>
+  </main>
 </div>
