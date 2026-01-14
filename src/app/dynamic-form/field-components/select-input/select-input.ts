@@ -3,7 +3,6 @@ import { ControlContainer, ReactiveFormsModule, FormGroup } from '@angular/forms
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormField } from '../../../models/form-config.model';
-import { FieldComponentRegistryService } from '../field-component-registry.service';
 
 @Component({
   selector: 'app-select-input',
@@ -23,13 +22,6 @@ export class SelectInputComponent {
   formGroup = input.required<FormGroup>();
   isInvalid = input.required<boolean>();
   formId = input<string>('');
-
-  private registry = inject(FieldComponentRegistryService);
-
-  constructor() {
-    // Self-register this component
-    this.registry.register('select', SelectInputComponent);
-  }
 
   fieldId = computed(() => {
     const id = this.formId() || 'field';

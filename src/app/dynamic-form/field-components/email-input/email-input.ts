@@ -4,7 +4,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { FormField } from '../../../models/form-config.model';
-import { FieldComponentRegistryService } from '../field-component-registry.service';
 
 @Component({
   selector: 'app-email-input',
@@ -24,13 +23,6 @@ export class EmailInputComponent {
   formGroup = input.required<FormGroup>();
   isInvalid = input.required<boolean>();
   formId = input<string>('');
-
-  private registry = inject(FieldComponentRegistryService);
-
-  constructor() {
-    // Self-register this component
-    this.registry.register('email', EmailInputComponent);
-  }
 
   fieldId = computed(() => {
     const id = this.formId() || 'field';

@@ -5,7 +5,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { FormField } from '../../../models/form-config.model';
-import { FieldComponentRegistryService } from '../field-component-registry.service';
 
 @Component({
   selector: 'app-date-input',
@@ -31,13 +30,6 @@ export class DateInputComponent {
   formGroup = input.required<FormGroup>();
   isInvalid = input.required<boolean>();
   formId = input<string>('');
-
-  private registry = inject(FieldComponentRegistryService);
-
-  constructor() {
-    // Self-register this component
-    this.registry.register('date', DateInputComponent);
-  }
 
   fieldId = computed(() => {
     const id = this.formId() || 'field';

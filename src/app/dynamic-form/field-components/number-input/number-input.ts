@@ -3,7 +3,6 @@ import { ControlContainer, ReactiveFormsModule, FormGroup } from '@angular/forms
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormField } from '../../../models/form-config.model';
-import { FieldComponentRegistryService } from '../field-component-registry.service';
 
 @Component({
   selector: 'app-number-input',
@@ -23,13 +22,6 @@ export class NumberInputComponent {
   formGroup = input.required<FormGroup>();
   isInvalid = input.required<boolean>();
   formId = input<string>('');
-
-  private registry = inject(FieldComponentRegistryService);
-
-  constructor() {
-    // Self-register this component
-    this.registry.register('number', NumberInputComponent);
-  }
 
   fieldId = computed(() => {
     const id = this.formId() || 'field';

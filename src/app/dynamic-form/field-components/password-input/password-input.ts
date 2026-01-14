@@ -1,11 +1,10 @@
-import { Component, input, computed, inject, signal } from '@angular/core';
+import { Component, input, computed, signal, inject } from '@angular/core';
 import { ControlContainer, ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { FormField } from '../../../models/form-config.model';
-import { FieldComponentRegistryService } from '../field-component-registry.service';
 
 @Component({
   selector: 'app-password-input',
@@ -26,14 +25,7 @@ export class PasswordInputComponent {
   isInvalid = input.required<boolean>();
   formId = input<string>('');
 
-  private registry = inject(FieldComponentRegistryService);
-
   hidePassword = signal(true);
-
-  constructor() {
-    // Self-register this component
-    this.registry.register('password', PasswordInputComponent);
-  }
 
   fieldId = computed(() => {
     const id = this.formId() || 'field';
