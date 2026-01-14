@@ -1,0 +1,16 @@
+<mat-form-field appearance="outline" [class.mat-form-field-invalid]="isInvalid()">
+  <mat-label>{{ label() }}</mat-label>
+  <input
+    matInput
+    [id]="fieldId()"
+    [formControlName]="field().name"
+    [matDatepicker]="picker"
+    [attr.aria-required]="required()"
+    [attr.aria-invalid]="isInvalid()"
+    [attr.aria-describedby]="ariaDescribedBy()">
+  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+  <mat-datepicker #picker></mat-datepicker>
+  @if (required()) {
+    <mat-hint align="end">Required</mat-hint>
+  }
+</mat-form-field>

@@ -1,0 +1,19 @@
+<mat-form-field appearance="outline" [class.mat-form-field-invalid]="isInvalid()">
+  <mat-label>{{ label() }}</mat-label>
+  <mat-select
+    [id]="fieldId()"
+    [formControlName]="field().name"
+    [attr.aria-required]="required()"
+    [attr.aria-invalid]="isInvalid()"
+    [attr.aria-describedby]="ariaDescribedBy()">
+    <mat-option value="">Select an option</mat-option>
+    @for (option of options(); track option) {
+      <mat-option [value]="option">
+        {{ option }}
+      </mat-option>
+    }
+  </mat-select>
+  @if (required()) {
+    <mat-hint align="end">Required</mat-hint>
+  }
+</mat-form-field>

@@ -1,0 +1,15 @@
+.checkbox-field-container {
+  width: 100%;
+  padding: 0.5rem 0;
+}
+
+.checkbox-label {
+  font-weight: 400;
+  color: var(--mat-sys-on-surface);
+}
+
+.required-indicator {
+  color: var(--mat-error);
+  margin-left: 0.25rem;
+  font-weight: 500;
+}

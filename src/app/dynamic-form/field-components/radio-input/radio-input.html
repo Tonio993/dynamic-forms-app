@@ -1,0 +1,23 @@
+<div class="radio-field-container">
+  <label class="radio-field-label">
+    {{ label() }}
+    @if (required()) {
+      <span class="required-indicator">*</span>
+    }
+  </label>
+  <mat-radio-group
+    [formControlName]="field().name"
+    [attr.aria-required]="required()"
+    [attr.aria-invalid]="isInvalid()"
+    [class.radio-group-invalid]="isInvalid()"
+    class="radio-group-container">
+    @for (option of options(); track option) {
+      <mat-radio-button [value]="option" [id]="optionId(option)" class="radio-option">
+        {{ option }}
+      </mat-radio-button>
+    }
+  </mat-radio-group>
+  @if (required()) {
+    <div class="field-hint">Required</div>
+  }
+</div>

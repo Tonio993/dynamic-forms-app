@@ -1,0 +1,15 @@
+<mat-form-field appearance="outline" [class.mat-form-field-invalid]="isInvalid()">
+  <mat-label>{{ label() }}</mat-label>
+  <input
+    matInput
+    [id]="fieldId()"
+    [formControlName]="field().name"
+    type="number"
+    [placeholder]="placeholder()"
+    [attr.aria-required]="required()"
+    [attr.aria-invalid]="isInvalid()"
+    [attr.aria-describedby]="ariaDescribedBy()">
+  @if (required()) {
+    <mat-hint align="end">Required</mat-hint>
+  }
+</mat-form-field>
