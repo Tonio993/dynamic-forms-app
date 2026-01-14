@@ -34,10 +34,10 @@ export class AppComponent {
         required: true,
         label: "First Name",
         placeholder: "Enter your first name",
-        constraints: [
-          { type: "minLength", value: 2 },
-          { type: "maxLength", value: 50 }
-        ]
+        config: {
+          minLength: 2,
+          maxLength: 50
+        }
       },
       {
         name: "lastName",
@@ -45,20 +45,17 @@ export class AppComponent {
         required: true,
         label: "Last Name",
         placeholder: "Enter your last name",
-        constraints: [
-          { type: "minLength", value: 2 },
-          { type: "maxLength", value: 50 }
-        ]
+        config: {
+          minLength: 2,
+          maxLength: 50
+        }
       },
       {
         name: "email",
         type: "email",
         required: true,
         label: "Email Address",
-        placeholder: "example@email.com",
-        constraints: [
-          { type: "email", value: "" }
-        ]
+        placeholder: "example@email.com"
       },
       {
         name: "age",
@@ -66,10 +63,10 @@ export class AppComponent {
         required: false,
         label: "Age",
         placeholder: "Enter your age",
-        constraints: [
-          { type: "min", value: 18 },
-          { type: "max", value: 120 }
-        ]
+        config: {
+          min: 18,
+          max: 120
+        }
       },
       {
         name: "password",
@@ -77,31 +74,34 @@ export class AppComponent {
         required: true,
         label: "Password",
         placeholder: "Enter a strong password",
-        constraints: [
-          { type: "minLength", value: 8 },
-          { type: "regex", value: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$" }
-        ]
+        config: {
+          minLength: 8,
+          pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"
+        }
       },
       {
         name: "birthDate",
         type: "date",
         required: false,
-        label: "Date of Birth",
-        constraints: []
+        label: "Date of Birth"
       },
       {
         name: "country",
         type: "select",
         required: true,
         label: "Country",
-        options: ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Other"]
+        config: {
+          options: ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Other"]
+        }
       },
       {
         name: "gender",
         type: "radio",
         required: false,
         label: "Gender",
-        options: ["Male", "Female", "Other", "Prefer not to say"]
+        config: {
+          options: ["Male", "Female", "Other", "Prefer not to say"]
+        }
       },
       {
         name: "bio",
@@ -109,9 +109,9 @@ export class AppComponent {
         required: false,
         label: "Biography",
         placeholder: "Tell us about yourself...",
-        constraints: [
-          { type: "maxLength", value: 500 }
-        ]
+        config: {
+          maxLength: 500
+        }
       },
       {
         name: "newsletter",

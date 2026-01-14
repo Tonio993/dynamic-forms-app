@@ -35,10 +35,10 @@ export class FormExamplesComponent {
           required: true,
           label: "First Name",
           placeholder: "Enter your first name",
-          constraints: [
-            { type: "minLength", value: 2 },
-            { type: "maxLength", value: 50 }
-          ]
+          config: {
+            minLength: 2,
+            maxLength: 50
+          }
         },
         {
           name: "lastName",
@@ -46,20 +46,17 @@ export class FormExamplesComponent {
           required: true,
           label: "Last Name",
           placeholder: "Enter your last name",
-          constraints: [
-            { type: "minLength", value: 2 },
-            { type: "maxLength", value: 50 }
-          ]
+          config: {
+            minLength: 2,
+            maxLength: 50
+          }
         },
         {
           name: "email",
           type: "email",
           required: true,
           label: "Email Address",
-          placeholder: "example@email.com",
-          constraints: [
-            { type: "email", value: "" }
-          ]
+          placeholder: "example@email.com"
         },
         {
           name: "password",
@@ -67,17 +64,19 @@ export class FormExamplesComponent {
           required: true,
           label: "Password",
           placeholder: "Enter a strong password",
-          constraints: [
-            { type: "minLength", value: 8 },
-            { type: "regex", value: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$" }
-          ]
+          config: {
+            minLength: 8,
+            pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"
+          }
         },
         {
           name: "country",
           type: "select",
           required: true,
           label: "Country",
-          options: ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Other"]
+          config: {
+            options: ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Other"]
+          }
         }
       ]
     },
@@ -90,20 +89,17 @@ export class FormExamplesComponent {
           required: true,
           label: "Full Name",
           placeholder: "Enter your full name",
-          constraints: [
-            { type: "minLength", value: 3 },
-            { type: "maxLength", value: 100 }
-          ]
+          config: {
+            minLength: 3,
+            maxLength: 100
+          }
         },
         {
           name: "email",
           type: "email",
           required: true,
           label: "Email Address",
-          placeholder: "your.email@example.com",
-          constraints: [
-            { type: "email", value: "" }
-          ]
+          placeholder: "your.email@example.com"
         },
         {
           name: "phone",
@@ -111,16 +107,18 @@ export class FormExamplesComponent {
           required: false,
           label: "Phone Number",
           placeholder: "+1 (555) 123-4567",
-          constraints: [
-            { type: "regex", value: "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$" }
-          ]
+          config: {
+            pattern: "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$"
+          }
         },
         {
           name: "subject",
           type: "select",
           required: true,
           label: "Subject",
-          options: ["General Inquiry", "Technical Support", "Sales", "Feedback", "Other"]
+          config: {
+            options: ["General Inquiry", "Technical Support", "Sales", "Feedback", "Other"]
+          }
         },
         {
           name: "message",
@@ -128,10 +126,10 @@ export class FormExamplesComponent {
           required: true,
           label: "Message",
           placeholder: "Please describe your inquiry...",
-          constraints: [
-            { type: "minLength", value: 10 },
-            { type: "maxLength", value: 1000 }
-          ]
+          config: {
+            minLength: 10,
+            maxLength: 1000
+          }
         },
         {
           name: "urgent",
@@ -151,30 +149,36 @@ export class FormExamplesComponent {
           required: false,
           label: "Your Name (Optional)",
           placeholder: "Enter your name",
-          constraints: [
-            { type: "maxLength", value: 100 }
-          ]
+          config: {
+            maxLength: 100
+          }
         },
         {
           name: "rating",
           type: "radio",
           required: true,
           label: "Overall Rating",
-          options: ["Excellent", "Very Good", "Good", "Fair", "Poor"]
+          config: {
+            options: ["Excellent", "Very Good", "Good", "Fair", "Poor"]
+          }
         },
         {
           name: "recommend",
           type: "radio",
           required: true,
           label: "Would you recommend us?",
-          options: ["Definitely", "Probably", "Maybe", "Probably Not", "Definitely Not"]
+          config: {
+            options: ["Definitely", "Probably", "Maybe", "Probably Not", "Definitely Not"]
+          }
         },
         {
           name: "satisfaction",
           type: "select",
           required: true,
           label: "Satisfaction Level",
-          options: ["Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied"]
+          config: {
+            options: ["Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied"]
+          }
         },
         {
           name: "comments",
@@ -182,9 +186,9 @@ export class FormExamplesComponent {
           required: false,
           label: "Additional Comments",
           placeholder: "Please share any additional feedback...",
-          constraints: [
-            { type: "maxLength", value: 500 }
-          ]
+          config: {
+            maxLength: 500
+          }
         },
         {
           name: "contactConsent",
@@ -204,17 +208,19 @@ export class FormExamplesComponent {
           required: true,
           label: "Product Name",
           placeholder: "Enter product name",
-          constraints: [
-            { type: "minLength", value: 3 },
-            { type: "maxLength", value: 200 }
-          ]
+          config: {
+            minLength: 3,
+            maxLength: 200
+          }
         },
         {
           name: "category",
           type: "select",
           required: true,
           label: "Category",
-          options: ["Electronics", "Clothing", "Food & Beverage", "Home & Garden", "Sports", "Books", "Other"]
+          config: {
+            options: ["Electronics", "Clothing", "Food & Beverage", "Home & Garden", "Sports", "Books", "Other"]
+          }
         },
         {
           name: "price",
@@ -222,10 +228,10 @@ export class FormExamplesComponent {
           required: true,
           label: "Price",
           placeholder: "0.00",
-          constraints: [
-            { type: "min", value: 0 },
-            { type: "max", value: 999999 }
-          ]
+          config: {
+            min: 0,
+            max: 999999
+          }
         },
         {
           name: "quantity",
@@ -233,10 +239,10 @@ export class FormExamplesComponent {
           required: true,
           label: "Quantity in Stock",
           placeholder: "0",
-          constraints: [
-            { type: "min", value: 0 },
-            { type: "max", value: 1000000 }
-          ]
+          config: {
+            min: 0,
+            max: 1000000
+          }
         },
         {
           name: "description",
@@ -244,17 +250,16 @@ export class FormExamplesComponent {
           required: true,
           label: "Product Description",
           placeholder: "Describe the product...",
-          constraints: [
-            { type: "minLength", value: 20 },
-            { type: "maxLength", value: 2000 }
-          ]
+          config: {
+            minLength: 20,
+            maxLength: 2000
+          }
         },
         {
           name: "releaseDate",
           type: "date",
           required: false,
-          label: "Release Date",
-          constraints: []
+          label: "Release Date"
         },
         {
           name: "inStock",
@@ -274,10 +279,10 @@ export class FormExamplesComponent {
           required: true,
           label: "Username or Email",
           placeholder: "Enter your username or email",
-          constraints: [
-            { type: "minLength", value: 3 },
-            { type: "maxLength", value: 100 }
-          ]
+          config: {
+            minLength: 3,
+            maxLength: 100
+          }
         },
         {
           name: "password",
@@ -285,9 +290,9 @@ export class FormExamplesComponent {
           required: true,
           label: "Password",
           placeholder: "Enter your password",
-          constraints: [
-            { type: "minLength", value: 6 }
-          ]
+          config: {
+            minLength: 6
+          }
         },
         {
           name: "rememberMe",
