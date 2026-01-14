@@ -1,31 +1,32 @@
 <div class="examples-container">
-  <div class="examples-header">
-    <h1>Dynamic Form Examples</h1>
-    <p class="subtitle">Explore different form configurations powered by JSON</p>
-  </div>
+  <mat-card class="examples-header-card">
+    <mat-card-header>
+      <mat-card-title>Dynamic Form Examples</mat-card-title>
+      <mat-card-subtitle>Explore different form configurations powered by JSON</mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
 
-  <div class="examples-tabs">
-    @for (key of exampleKeys(); track key) {
-      <button
-        [class.active]="selectedExample() === key"
-        (click)="selectExample(key)"
-        class="tab-button">
-        {{ getExampleTitle(key) }}
-      </button>
-    }
-  </div>
+  <mat-card class="examples-content-card">
+    <mat-tab-group [selectedIndex]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
+      @for (key of exampleKeys(); track key) {
+        <mat-tab [label]="getExampleTitle(key)">
+          <div class="tab-content">
+            <div class="example-info">
+              <h2>{{ currentFormConfig().name }}</h2>
+              <p class="example-description">{{ getExampleDescription(key) }}</p>
+            </div>
 
-  <div class="example-content">
-    <div class="example-info">
-      <h2>{{ currentFormConfig().name }}</h2>
-      <p class="example-description">{{ getExampleDescription(selectedExample()) }}</p>
-    </div>
+            <app-dynamic-form [formConfig]="currentFormConfig()"></app-dynamic-form>
 
-    <app-dynamic-form [formConfig]="currentFormConfig()"></app-dynamic-form>
+            <mat-divider class="json-divider"></mat-divider>
 
-    <div class="json-preview">
-      <h3>JSON Configuration</h3>
-      <pre><code>{{ currentFormConfig() | json }}</code></pre>
-    </div>
-  </div>
+            <div class="json-preview">
+              <h3>JSON Configuration</h3>
+              <pre><code>{{ currentFormConfig() | json }}</code></pre>
+            </div>
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  </mat-card>
 </div>
