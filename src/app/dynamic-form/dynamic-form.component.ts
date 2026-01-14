@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractContro
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-import { FormConfig, FormField, Constraint } from '../models/form-config.model';
+import { FormConfig, FormField } from '../models/form-config.model';
 import { FieldComponentRegistryService } from './field-components/field-component-registry.service';
 
 @Component({
@@ -30,7 +30,7 @@ export class DynamicFormComponent {
   readonly formId = `form-${Math.random().toString(36).substring(2, 11)}`;
   
   dynamicForm = signal<FormGroup | null>(null);
-  formData = signal<any>({});
+  formData = signal<Record<string, unknown>>({});
 
   // Computed values
   hasFormData = computed(() => {
@@ -71,39 +71,49 @@ export class DynamicFormComponent {
       validators.push(Validators.required);
     }
 
-    if (field.constraints) {
-      field.constraints.forEach(constraint => {
-        switch (constraint.type) {
-          case 'min':
-            validators.push(Validators.min(Number(constraint.value)));
-            break;
-          case 'max':
-            validators.push(Validators.max(Number(constraint.value)));
-            break;
-          case 'minLength':
-            validators.push(Validators.minLength(Number(constraint.value)));
-            break;
-          case 'maxLength':
-            validators.push(Validators.maxLength(Number(constraint.value)));
-            break;
-          case 'regex':
-          case 'pattern':
-            validators.push(Validators.pattern(String(constraint.value)));
-            break;
-          case 'email':
-            validators.push(Validators.email);
-            break;
-        }
-      });
-    }
+    // Read validation rules from config
+    const config = field.config || {};
 
-    // Type-specific validators
+    // Type-specific validators based on config
     switch (field.type) {
-      case 'email':
-        validators.push(Validators.email);
+      case 'text':
+        if (config['minLength'] !== undefined) {
+          validators.push(Validators.minLength(Number(config['minLength'])));
+        }
+        if (config['maxLength'] !== undefined) {
+          validators.push(Validators.maxLength(Number(config['maxLength'])));
+        }
+        if (config['pattern']) {
+          validators.push(Validators.pattern(String(config['pattern'])));
+        }
         break;
       case 'number':
         validators.push(this.numberValidator);
+        if (config['min'] !== undefined) {
+          validators.push(Validators.min(Number(config['min'])));
+        }
+        if (config['max'] !== undefined) {
+          validators.push(Validators.max(Number(config['max'])));
+        }
+        break;
+      case 'email':
+        validators.push(Validators.email);
+        break;
+      case 'password':
+        if (config['minLength'] !== undefined) {
+          validators.push(Validators.minLength(Number(config['minLength'])));
+        }
+        if (config['pattern']) {
+          validators.push(Validators.pattern(String(config['pattern'])));
+        }
+        break;
+      case 'textarea':
+        if (config['minLength'] !== undefined) {
+          validators.push(Validators.minLength(Number(config['minLength'])));
+        }
+        if (config['maxLength'] !== undefined) {
+          validators.push(Validators.maxLength(Number(config['maxLength'])));
+        }
         break;
     }
 
@@ -170,11 +180,14 @@ export class DynamicFormComponent {
     return !!(control && control.invalid && control.touched);
   }
 
-  getFieldComponentType(field: FormField): Type<any> | null {
-    // Validate that select and radio have options
-    if ((field.type === 'select' || field.type === 'radio') && !field.options) {
-      console.warn(`Field '${field.name}' of type '${field.type}' requires options but none were provided.`);
-      return null;
+  getFieldComponentType(field: FormField): Type<unknown> | null {
+    // Validate that select and radio have options in config
+    if (field.type === 'select' || field.type === 'radio') {
+      const config = field.config || {};
+      if (!config['options'] || !Array.isArray(config['options']) || config['options'].length === 0) {
+        console.warn(`Field '${field.name}' of type '${field.type}' requires options in config but none were provided.`);
+        return null;
+      }
     }
 
     // Get component from the registry service based on field type
