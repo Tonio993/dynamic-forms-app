@@ -40,3 +40,14 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Temporary documentation and git files
+.gitmessage
+GIT_COMMITS.md
+REFACTORING_SUMMARY.md
+
+# Legacy/unused field component files
+src/app/dynamic-form/field-components/base-field.component.ts
+src/app/dynamic-form/field-components/field-component-registry.ts
+src/app/dynamic-form/field-components/field-components-init.ts
+src/app/dynamic-form/field-components/index.ts
