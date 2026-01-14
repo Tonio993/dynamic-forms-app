@@ -1,18 +1,33 @@
-import { Component, input, signal, computed, effect, inject } from '@angular/core';
-import { JsonPipe } from '@angular/common';
+import { Component, input, signal, computed, effect, inject, Type } from '@angular/core';
+import { JsonPipe, NgComponentOutlet } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
 import { FormConfig, FormField, Constraint } from '../models/form-config.model';
+import { FieldComponentRegistryService } from './field-components/field-component-registry.service';
 
 @Component({
   selector: 'app-dynamic-form',
   standalone: true,
-  imports: [ReactiveFormsModule, JsonPipe],
+  imports: [
+    ReactiveFormsModule,
+    JsonPipe,
+    NgComponentOutlet,
+    MatButtonModule,
+    MatCardModule,
+    MatDividerModule
+  ],
   templateUrl: './dynamic-form.component.html',
   styleUrls: ['./dynamic-form.component.css']
 })
 export class DynamicFormComponent {
   formConfig = input.required<FormConfig>();
   private fb = inject(FormBuilder);
+  private registry = inject(FieldComponentRegistryService);
+  
+  // Generate unique form ID to prevent duplicate IDs when multiple forms are rendered
+  readonly formId = `form-${Math.random().toString(36).substring(2, 11)}`;
   
   dynamicForm = signal<FormGroup | null>(null);
   formData = signal<any>({});
@@ -153,6 +168,24 @@ export class DynamicFormComponent {
   isFieldInvalid(fieldName: string): boolean {
     const control = this.getFieldControl(fieldName);
     return !!(control && control.invalid && control.touched);
+  }
+
+  getFieldComponentType(field: FormField): Type<any> | null {
+    // Validate that select and radio have options
+    if ((field.type === 'select' || field.type === 'radio') && !field.options) {
+      console.warn(`Field '${field.name}' of type '${field.type}' requires options but none were provided.`);
+      return null;
+    }
+
+    // Get component from the registry service based on field type
+    const component = this.registry.get(field.type);
+    
+    if (!component) {
+      console.warn(`No component registered for field type '${field.type}'. Make sure the component is registered in FieldComponentRegistryService.`);
+      return null;
+    }
+
+    return component;
   }
 
   onSubmit(): void {
