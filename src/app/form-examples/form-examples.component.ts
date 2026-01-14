@@ -6,8 +6,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { FormConfig } from '../models/form-config.model';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
-// Import all components to ensure they register themselves when the module loads
-import '../dynamic-form/field-components/field-components';
 
 @Component({
   selector: 'app-form-examples',

@@ -5,8 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormConfig } from './models/form-config.model';
 import { DynamicFormComponent } from './dynamic-form/dynamic-form.component';
 import { FormExamplesComponent } from './form-examples/form-examples.component';
-// Import all components to ensure they register themselves when the module loads
-import './dynamic-form/field-components/field-components';
+import { FieldComponentsRegistryComponent } from './dynamic-form/field-components/field-components-registry.component';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +13,7 @@ import './dynamic-form/field-components/field-components';
   imports: [
     DynamicFormComponent,
     FormExamplesComponent,
+    FieldComponentsRegistryComponent,
     MatButtonModule,
     MatToolbarModule,
     MatIconModule

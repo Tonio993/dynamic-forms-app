@@ -1,6 +1,5 @@
 /**
  * Export all field components for use in form configurations
- * Components will self-register in the FieldComponentRegistryService when instantiated
  */
 export { TextInputComponent } from './text-input/text-input';
 export { EmailInputComponent } from './email-input/email-input';
@@ -16,3 +15,9 @@ export { CheckboxInputComponent } from './checkbox-input/checkbox-input';
  * Export the registry service
  */
 export { FieldComponentRegistryService } from './field-component-registry.service';
+
+/**
+ * Export the registry component that registers all field components
+ * Import this component in your application to register all field components
+ */
+export { FieldComponentsRegistryComponent } from './field-components-registry.component';
