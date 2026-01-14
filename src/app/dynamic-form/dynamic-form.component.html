@@ -20,6 +20,7 @@
                     [ngComponentOutletInputs]="{
                       field: field,
                       formGroup: dynamicForm()!,
+                      formControl: getFieldControl(field.name)!,
                       isInvalid: isFieldInvalid(field.name),
                       formId: formId
                     }">

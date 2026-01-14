@@ -1,5 +1,5 @@
-import { Component, input, computed } from '@angular/core';
-import { ReactiveFormsModule, FormGroup } from '@angular/forms';
+import { Component, input, computed, OnInit } from '@angular/core';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormField } from '../../../models/form-config.model';
@@ -10,8 +10,10 @@ import { FIELD_COMPONENT_VIEW_PROVIDERS } from '../field-component-constants';
  * Number input component configuration
  */
 export interface NumberInputConfig {
-  min?: number;
-  max?: number;
+  min?: number; // Minimum value for validation
+  max?: number; // Maximum value for validation
+  valueFrom?: number; // Minimum value for clamping (prevents entering values below this)
+  valueTo?: number; // Maximum value for clamping (prevents entering values above this)
   step?: number;
 }
 
@@ -23,9 +25,10 @@ export interface NumberInputConfig {
   templateUrl: './number-input.html',
   styleUrls: ['./number-input.css']
 })
-export class NumberInputComponent {
+export class NumberInputComponent implements OnInit {
   readonly field = input.required<FormField>();
   readonly formGroup = input.required<FormGroup>();
+  readonly formControl = input.required<FormControl>();
   readonly isInvalid = input.required<boolean>();
   readonly formId = input<string>('');
 
@@ -35,13 +38,20 @@ export class NumberInputComponent {
   readonly label = FieldComponentUtils.createLabel(this.field);
   readonly ariaDescribedBy = FieldComponentUtils.createAriaDescribedBy(this.isInvalid, this.fieldId);
   readonly config = computed(() => (this.field().config || {}) as NumberInputConfig);
+  
+  // Validation constraints (for validators)
   readonly min = computed(() => this.config().min);
   readonly max = computed(() => this.config().max);
+  
+  // Clamping constraints (for input clamping)
+  readonly valueFrom = computed(() => this.config().valueFrom);
+  readonly valueTo = computed(() => this.config().valueTo);
+  
   readonly step = computed(() => this.config().step);
 
   /**
-   * Handle input events to enforce min/max constraints
-   * Prevents users from entering values outside the allowed range
+   * Handle input events to enforce valueFrom/valueTo constraints
+   * Prevents users from entering values outside the allowed range (clamping)
    */
   onInput(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -52,27 +62,56 @@ export class NumberInputComponent {
       return;
     }
 
-    const minValue = this.min();
-    const maxValue = this.max();
+    const valueFrom = this.valueFrom();
+    const valueTo = this.valueTo();
+  }
 
-    // Clamp value to min if it's below minimum
-    if (minValue !== undefined && value < minValue) {
-      input.value = minValue.toString();
-      const control = this.formGroup().get(this.field().name);
-      if (control) {
-        control.setValue(minValue, { emitEvent: true });
-      }
-      return;
+  /**
+   * Number validator to ensure value is a valid number
+   */
+  private numberValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null;
+    }
+    const isNumber = !isNaN(Number(control.value));
+    return isNumber ? null : { notANumber: true };
+  }
+
+  ngOnInit(): void {
+    // Apply validators to the form control
+    const validators: ValidatorFn[] = [];
+    const field = this.field();
+    const config = this.config();
+
+    // Required validator
+    if (field.required === true) {
+      validators.push(Validators.required);
     }
 
-    // Clamp value to max if it's above maximum
-    if (maxValue !== undefined && value > maxValue) {
-      input.value = maxValue.toString();
-      const control = this.formGroup().get(this.field().name);
-      if (control) {
-        control.setValue(maxValue, { emitEvent: true });
+    // Always add number validator
+    validators.push(this.numberValidator.bind(this));
+
+    // Component-specific validators
+    if (config.min !== undefined) {
+      validators.push(Validators.min(Number(config.min)));
+    }
+    if (config.max !== undefined) {
+      validators.push(Validators.max(Number(config.max)));
+    }
+
+    // Custom validators from field
+    if (field.validators) {
+      if (Array.isArray(field.validators)) {
+        validators.push(...field.validators);
+      } else {
+        validators.push(field.validators);
       }
-      return;
+    }
+
+    // Apply validators to the control
+    if (validators.length > 0) {
+      this.formControl().setValidators(validators);
+      this.formControl().updateValueAndValidity();
     }
   }
 }

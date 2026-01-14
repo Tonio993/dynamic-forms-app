@@ -1,6 +1,6 @@
 import { Component, input, signal, computed, effect, inject, Type } from '@angular/core';
 import { JsonPipe, NgComponentOutlet } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, FormControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -56,81 +56,18 @@ export class DynamicFormComponent {
   buildForm(config: FormConfig): void {
     const formControls: { [key: string]: any } = {};
 
+    // Create form controls without validators - components will apply their own validators
     config.fields.forEach(field => {
-      const validators = this.getValidators(field);
-      formControls[field.name] = [null, validators];
+      formControls[field.name] = [null];
     });
 
     this.dynamicForm.set(this.fb.group(formControls));
   }
 
-  getValidators(field: FormField): any[] {
-    const validators: any[] = [];
-
-    if (field.required === true) {
-      validators.push(Validators.required);
-    }
-
-    // Read validation rules from config
-    const config = field.config || {};
-
-    // Type-specific validators based on config
-    switch (field.type) {
-      case 'text':
-        if (config['minLength'] !== undefined) {
-          validators.push(Validators.minLength(Number(config['minLength'])));
-        }
-        if (config['maxLength'] !== undefined) {
-          validators.push(Validators.maxLength(Number(config['maxLength'])));
-        }
-        if (config['pattern']) {
-          validators.push(Validators.pattern(String(config['pattern'])));
-        }
-        break;
-      case 'number':
-        validators.push(this.numberValidator);
-        if (config['min'] !== undefined) {
-          validators.push(Validators.min(Number(config['min'])));
-        }
-        if (config['max'] !== undefined) {
-          validators.push(Validators.max(Number(config['max'])));
-        }
-        break;
-      case 'email':
-        validators.push(Validators.email);
-        break;
-      case 'password':
-        if (config['minLength'] !== undefined) {
-          validators.push(Validators.minLength(Number(config['minLength'])));
-        }
-        if (config['pattern']) {
-          validators.push(Validators.pattern(String(config['pattern'])));
-        }
-        break;
-      case 'textarea':
-        if (config['minLength'] !== undefined) {
-          validators.push(Validators.minLength(Number(config['minLength'])));
-        }
-        if (config['maxLength'] !== undefined) {
-          validators.push(Validators.maxLength(Number(config['maxLength'])));
-        }
-        break;
-    }
-
-    return validators;
-  }
-
-  numberValidator(control: AbstractControl): ValidationErrors | null {
-    if (!control.value) {
-      return null;
-    }
-    const isNumber = !isNaN(Number(control.value));
-    return isNumber ? null : { notANumber: true };
-  }
-
-  getFieldControl(fieldName: string): AbstractControl | null {
+  getFieldControl(fieldName: string): FormControl | null {
     const form = this.dynamicForm();
-    return form?.get(fieldName) ?? null;
+    const control = form?.get(fieldName);
+    return control instanceof FormControl ? control : null;
   }
 
   getFieldError(fieldName: string): string {
