@@ -1,18 +1,34 @@
-export interface Constraint {
-  type: string; // 'min', 'max', 'regex', 'minLength', 'maxLength', 'pattern', etc.
-  value: string | number;
-}
+/**
+ * Supported field types for dynamic forms
+ */
+export type FieldType = 
+  | 'text' 
+  | 'number' 
+  | 'email' 
+  | 'date' 
+  | 'password' 
+  | 'textarea' 
+  | 'select' 
+  | 'checkbox' 
+  | 'radio';
 
+/**
+ * Form field configuration
+ * The config field contains component-specific configuration.
+ * Each field component defines its own config interface.
+ */
 export interface FormField {
   name: string;
-  type: string; // 'text', 'number', 'email', 'date', 'password', 'textarea', 'select', 'checkbox', 'radio'
+  type: FieldType;
   required?: boolean; // Optional: defaults to false if not provided
-  constraints?: Constraint[];
-  options?: string[]; // For select, radio types
+  config?: Record<string, unknown>; // Component-specific configuration
   label?: string; // Display label (defaults to name if not provided)
   placeholder?: string;
 }
 
+/**
+ * Complete form configuration
+ */
 export interface FormConfig {
   name: string;
   fields: FormField[];
