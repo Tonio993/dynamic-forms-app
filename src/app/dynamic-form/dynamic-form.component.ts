@@ -105,6 +105,20 @@ export class DynamicFormComponent {
       return `Must be a valid number`;
     }
 
+    // Handle custom validator errors
+    const errorKeys = Object.keys(errors);
+    for (const key of errorKeys) {
+      const errorValue = errors[key];
+      // If error value is a string, use it directly
+      if (typeof errorValue === 'string') {
+        return errorValue;
+      }
+      // If error value is an object with a message property
+      if (errorValue && typeof errorValue === 'object' && 'message' in errorValue) {
+        return String(errorValue.message);
+      }
+    }
+
     return '';
   }
 

@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { FormConfig } from '../models/form-config.model';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 @Component({
   selector: 'app-form-examples',
@@ -38,7 +39,8 @@ export class FormExamplesComponent {
           config: {
             minLength: 2,
             maxLength: 50
-          }
+          },
+          validators: [(control: AbstractControl) => control.value !== 'Antonio' ? { notAntonio: "Name must be Antonio" } : null]
         },
         {
           name: "lastName",
