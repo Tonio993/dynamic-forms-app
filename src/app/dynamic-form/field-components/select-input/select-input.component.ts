@@ -31,7 +31,6 @@ export class SelectInputComponent extends BaseFieldComponent implements OnInit {
     // Validate that options are provided
     const config = this.config();
     if (!config.options || !Array.isArray(config.options) || config.options.length === 0) {
-      console.warn(`SelectInputComponent: Field '${this.field().name}' requires options in config but none were provided.`);
       return;
     }
 

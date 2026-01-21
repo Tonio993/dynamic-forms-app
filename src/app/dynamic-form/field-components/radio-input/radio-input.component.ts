@@ -30,11 +30,9 @@ export class RadioInputComponent extends BaseFieldComponent implements OnInit {
     // Validate that options are provided
     const config = this.config();
     if (!config.options || !Array.isArray(config.options) || config.options.length === 0) {
-      console.warn(`RadioInputComponent: Field '${this.field().name}' requires options in config but none were provided.`);
       return;
     }
 
-    // Apply validators to the form control
     // Apply validators to the form control
     const validators: ValidatorFn[] = [];
     const field = this.field();

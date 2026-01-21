@@ -19,9 +19,6 @@ export class FieldComponentRegistryService {
    * Register a component and its control type for a specific field type
    */
   register(fieldType: string, component: Type<unknown>, controlType: ControlType): void {
-    if (this.componentRegistry.has(fieldType)) {
-      console.warn(`Component for field type '${fieldType}' is already registered. Overwriting...`);
-    }
     this.componentRegistry.set(fieldType, component);
     this.controlTypeRegistry.set(fieldType, controlType);
   }
@@ -78,11 +75,11 @@ export class FieldComponentRegistryService {
       return;
     }
 
-    FIELD_COMPONENT_CONFIGS.forEach(config => {
+    for (const config of FIELD_COMPONENT_CONFIGS) {
       // Get control type from component instance
       const controlType = this.getControlTypeFromComponent(config.component);
       this.register(config.type, config.component, controlType);
-    });
+    }
 
     this.initialized = true;
   }
@@ -90,7 +87,7 @@ export class FieldComponentRegistryService {
   /**
    * Creates a component instance in injection context and retrieves its control type
    */
-  private getControlTypeFromComponent<T extends BaseFieldComponent>(componentType: new (...args: any[]) => T): ControlType {
+  private getControlTypeFromComponent<T extends BaseFieldComponent>(componentType: new () => T): ControlType {
     return runInInjectionContext(this.injector, () => {
       const instance = new componentType();
       return instance.getControlType();

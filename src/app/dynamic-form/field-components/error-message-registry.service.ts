@@ -42,9 +42,6 @@ export class ErrorMessageRegistryService {
    * @param messageFunction The function that generates the error message
    */
   register(errorKey: string, messageFunction: ErrorMessageFunction): void {
-    if (this.errorMessageMap.has(errorKey)) {
-      console.warn(`Error message for key '${errorKey}' is already registered. Overwriting...`);
-    }
     this.errorMessageMap.set(errorKey, messageFunction);
   }
 
