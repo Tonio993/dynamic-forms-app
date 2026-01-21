@@ -411,6 +411,7 @@ export class FormExamplesComponent {
             allowDelete: true,
             confirmDelete: true,
             deleteConfirmationMessage: "Are you sure you want to remove this address?",
+            allowDragDrop: true,
             getItemDescription: (formGroup: any, index: number) => {
               const street = formGroup.get('street')?.value || '';
               const city = formGroup.get('city')?.value || '';

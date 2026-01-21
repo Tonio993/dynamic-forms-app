@@ -1,5 +1,6 @@
 import { Component, computed, input, OnInit, inject, Type, ChangeDetectorRef, Optional } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormArray, FormBuilder, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -35,6 +36,8 @@ export interface SubformInputConfig {
   confirmDelete?: boolean;
   /** Custom confirmation message for deletion (optional) */
   deleteConfirmationMessage?: string;
+  /** Whether drag and drop sorting is enabled (default: true) */
+  allowDragDrop?: boolean;
 }
 
 @Component({
@@ -42,6 +45,7 @@ export interface SubformInputConfig {
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    DragDropModule,
     MatFormFieldModule,
     MatButtonModule,
     MatIconModule,
@@ -284,6 +288,45 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
         this.cdr.detectChanges();
       }
     }, 0);
+  }
+
+  /**
+   * Handle drag and drop reordering of items
+   */
+  dropItem(event: CdkDragDrop<FormGroup[]>): void {
+    const array = this.formArray;
+    if (!array) {
+      return;
+    }
+
+    const config = this.config();
+    // Check if drag and drop is enabled
+    if (config.allowDragDrop === false) {
+      return;
+    }
+
+    // Move the item in the FormArray
+    const previousIndex = event.previousIndex;
+    const currentIndex = event.currentIndex;
+
+    if (previousIndex !== currentIndex) {
+      // Get the form group at the previous index
+      const formGroup = array.at(previousIndex) as FormGroup;
+      
+      // Remove it from the old position
+      array.removeAt(previousIndex);
+      
+      // Insert it at the new position
+      array.insert(currentIndex, formGroup);
+      
+      // Update validity
+      array.updateValueAndValidity();
+      
+      // Trigger change detection
+      if (this.cdr) {
+        this.cdr.detectChanges();
+      }
+    }
   }
 
   /**

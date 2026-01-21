@@ -26,37 +26,49 @@
   }
 
   @if (formArray && formArray.length > 0) {
-    <mat-list class="subform-items-list">
-      @for (formGroup of formGroups; track $index) {
-        <mat-list-item class="subform-item">
-          <div class="item-content">
-            <div class="item-description">
-              {{ getItemDescription(formGroup, $index) }}
-            </div>
-            <div class="item-actions">
-              <button
-                mat-icon-button
-                color="primary"
-                type="button"
-                (click)="editItem($index)"
-                [attr.aria-label]="'Edit item ' + ($index + 1)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              @if (canDeleteItem()) {
+    <div 
+      class="subform-items-wrapper"
+      cdkDropList
+      [cdkDropListDisabled]="config().allowDragDrop === false"
+      (cdkDropListDropped)="dropItem($event)">
+      <mat-list class="subform-items-list">
+        @for (formGroup of formGroups; track $index) {
+          <mat-list-item 
+            class="subform-item"
+            cdkDrag
+            [cdkDragDisabled]="config().allowDragDrop === false">
+            <div class="item-content">
+              @if (config().allowDragDrop !== false) {
+                <mat-icon class="drag-handle" cdkDragHandle>drag_indicator</mat-icon>
+              }
+              <div class="item-description">
+                {{ getItemDescription(formGroup, $index) }}
+              </div>
+              <div class="item-actions">
                 <button
                   mat-icon-button
-                  color="warn"
+                  color="primary"
                   type="button"
-                  (click)="deleteItem($index)"
-                  [attr.aria-label]="config().deleteButtonLabel || 'Delete item'">
-                  <mat-icon>delete</mat-icon>
+                  (click)="editItem($index)"
+                  [attr.aria-label]="'Edit item ' + ($index + 1)">
+                  <mat-icon>edit</mat-icon>
                 </button>
-              }
+                @if (canDeleteItem()) {
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    type="button"
+                    (click)="deleteItem($index)"
+                    [attr.aria-label]="config().deleteButtonLabel || 'Delete item'">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </div>
             </div>
-          </div>
-        </mat-list-item>
-      }
-    </mat-list>
+          </mat-list-item>
+        }
+      </mat-list>
+    </div>
   }
 
   @if (isInvalid() && formControl() && formControl().touched) {
