@@ -1,0 +1,43 @@
+<div class="dialog-container">
+  <h2 mat-dialog-title>{{ title }}</h2>
+  
+  <mat-dialog-content class="dialog-content">
+    <form [formGroup]="formGroup" class="subform-dialog-form">
+      @for (field of formConfig.fields; track field.name) {
+        <div 
+          class="dialog-field"
+          [class.field-error]="isFieldInvalid(field.name)">
+          
+          <!-- Dynamic Field Component using ngComponentOutlet -->
+          @if (getFieldComponentType(field); as componentType) {
+            <ng-container
+              [ngComponentOutlet]="componentType"
+              [ngComponentOutletInputs]="{
+                field: field,
+                formGroup: formGroup,
+                formControl: getFieldControl(field.name)!,
+                isInvalid: isFieldInvalid(field.name),
+                formId: 'subform-dialog-' + field.name
+              }">
+            </ng-container>
+          }
+
+          <!-- Error Message -->
+          @if (isFieldInvalid(field.name)) {
+            <div
+              [id]="'subform-dialog-' + field.name + '-error'"
+              class="error-message"
+              role="alert">
+              {{ getFieldError(field.name) }}
+            </div>
+          }
+        </div>
+      }
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="save()">Save</button>
+  </mat-dialog-actions>
+</div>

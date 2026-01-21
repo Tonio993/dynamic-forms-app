@@ -12,7 +12,8 @@ export type FieldType =
   | 'textarea' 
   | 'select' 
   | 'checkbox' 
-  | 'radio';
+  | 'radio'
+  | 'subform';
 
 /**
  * Form field configuration

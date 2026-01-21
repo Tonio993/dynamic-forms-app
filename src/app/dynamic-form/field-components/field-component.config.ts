@@ -9,6 +9,7 @@ import { TextareaInputComponent } from './textarea-input/textarea-input.componen
 import { SelectInputComponent } from './select-input/select-input.component';
 import { RadioInputComponent } from './radio-input/radio-input.component';
 import { CheckboxInputComponent } from './checkbox-input/checkbox-input.component';
+import { SubformInputComponent } from './subform-input/subform-input.component';
 
 /**
  * Configuration for a field component registration
@@ -35,5 +36,6 @@ export const FIELD_COMPONENT_CONFIGS: FieldComponentConfig[] = [
   { type: 'textarea', component: TextareaInputComponent, controlType: 'control' },
   { type: 'select', component: SelectInputComponent, controlType: 'control' },
   { type: 'radio', component: RadioInputComponent, controlType: 'control' },
-  { type: 'checkbox', component: CheckboxInputComponent, controlType: 'control' }
+  { type: 'checkbox', component: CheckboxInputComponent, controlType: 'control' },
+  { type: 'subform', component: SubformInputComponent, controlType: 'array' }
 ];

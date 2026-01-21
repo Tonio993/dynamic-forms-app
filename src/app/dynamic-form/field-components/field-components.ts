@@ -10,6 +10,7 @@ export { TextareaInputComponent } from './textarea-input/textarea-input.componen
 export { SelectInputComponent } from './select-input/select-input.component';
 export { RadioInputComponent } from './radio-input/radio-input.component';
 export { CheckboxInputComponent } from './checkbox-input/checkbox-input.component';
+export { SubformInputComponent } from './subform-input/subform-input.component';
 
 /**
  * Export the registry service

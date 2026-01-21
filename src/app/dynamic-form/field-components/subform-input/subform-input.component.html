@@ -1,0 +1,78 @@
+<div class="subform-container">
+  <div class="subform-header">
+    <label [for]="fieldId()" class="subform-label">
+      {{ label() }}
+      @if (required()) {
+        <span class="required-indicator">*</span>
+      }
+    </label>
+    @if (canAddItem()) {
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="addItem()"
+        [attr.aria-label]="config().addButtonLabel || 'Add item'">
+        <mat-icon>add</mat-icon>
+        {{ config().addButtonLabel || 'Add Item' }}
+      </button>
+    }
+  </div>
+
+  @if (!formArray || formArray.length === 0) {
+    <div class="empty-state">
+      <p>No items added yet. Click "Add Item" to create your first entry.</p>
+    </div>
+  }
+
+  @if (formArray && formArray.length > 0) {
+    <mat-list class="subform-items-list">
+      @for (formGroup of formGroups; track $index) {
+        <mat-list-item class="subform-item">
+          <div class="item-content">
+            <div class="item-description">
+              {{ getItemDescription(formGroup, $index) }}
+            </div>
+            <div class="item-actions">
+              <button
+                mat-icon-button
+                color="primary"
+                type="button"
+                (click)="editItem($index)"
+                [attr.aria-label]="'Edit item ' + ($index + 1)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              @if (canDeleteItem()) {
+                <button
+                  mat-icon-button
+                  color="warn"
+                  type="button"
+                  (click)="deleteItem($index)"
+                  [attr.aria-label]="config().deleteButtonLabel || 'Delete item'">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        </mat-list-item>
+      }
+    </mat-list>
+  }
+
+  @if (isInvalid() && formControl() && formControl().touched) {
+    <div
+      [id]="fieldId() + '-error'"
+      class="error-message"
+      role="alert">
+      @if (formControl().errors?.['required']) {
+        {{ label() }} is required
+      }
+      @if (formControl().errors?.['minItems']) {
+        Minimum {{ formControl().errors?.['minItems'].required }} items required
+      }
+      @if (formControl().errors?.['maxItems']) {
+        Maximum {{ formControl().errors?.['maxItems'].required }} items allowed
+      }
+    </div>
+  }
+</div>
