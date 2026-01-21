@@ -25,6 +25,7 @@ import { FieldComponentRegistryService } from './field-components/field-componen
 })
 export class DynamicFormComponent {
   formConfig = input.required<FormConfig>();
+  formValues = input<Record<string, unknown>>();
   private fb = inject(FormBuilder);
   private registry = inject(FieldComponentRegistryService);
   private errorMessageRegistry = inject(ErrorMessageRegistryService);
@@ -54,6 +55,17 @@ export class DynamicFormComponent {
         this.buildForm(config);
       }
     });
+
+    // Watch for formValues changes and apply them when form is ready
+    effect(() => {
+      const values = this.formValues();
+      const form = this.dynamicForm();
+      const config = this.formConfig();
+      // Only set values if form is built and config is available
+      if (values && form && config && Object.keys(values).length > 0) {
+        this.setFormValues(values);
+      }
+    });
   }
 
   buildForm(config: FormConfig): void {
@@ -77,7 +89,14 @@ export class DynamicFormComponent {
       formControls[field.name] = this.createControlByType(controlType);
     });
 
-    this.dynamicForm.set(this.fb.group(formControls));
+    const newForm = this.fb.group(formControls);
+    this.dynamicForm.set(newForm);
+    
+    // Set form values if provided, after form is built
+    const values = this.formValues();
+    if (values && Object.keys(values).length > 0) {
+      this.setFormValues(values);
+    }
   }
 
   /**
@@ -178,5 +197,131 @@ export class DynamicFormComponent {
 
   getFormValue(): any {
     return this.dynamicForm()?.value;
+  }
+
+  /**
+   * Set form values from a JSON object
+   * Handles nested structures including FormArrays (subforms)
+   */
+  setFormValues(values: Record<string, unknown>): void {
+    const form = this.dynamicForm();
+    if (!form) {
+      console.warn('Cannot set form values: form is not initialized');
+      return;
+    }
+
+    const config = this.formConfig();
+    if (!config) {
+      console.warn('Cannot set form values: form config is not available');
+      return;
+    }
+
+    try {
+      // Build a structured value object that matches the form structure
+      const formValues: Record<string, unknown> = {};
+      
+      config.fields.forEach(field => {
+        const fieldValue = values[field.name];
+        if (fieldValue === undefined || fieldValue === null) {
+          return; // Skip undefined/null values
+        }
+
+        const controlType = this.registry.getControlType(field.type);
+        if (!controlType) {
+          formValues[field.name] = fieldValue;
+          return;
+        }
+
+        // Handle different control types
+        if (controlType === 'array') {
+          // For FormArray (subforms), create FormGroups for each item
+          if (Array.isArray(fieldValue)) {
+            formValues[field.name] = fieldValue.map(item => {
+              if (typeof item === 'object' && item !== null) {
+                return item as Record<string, unknown>;
+              }
+              return {};
+            });
+          }
+        } else if (controlType === 'group') {
+          // For FormGroup, ensure it's an object
+          if (typeof fieldValue === 'object' && fieldValue !== null && !Array.isArray(fieldValue)) {
+            formValues[field.name] = fieldValue as Record<string, unknown>;
+          }
+        } else {
+          // For FormControl, use the value directly
+          formValues[field.name] = fieldValue;
+        }
+      });
+
+      // Use patchValue to set values (allows partial updates)
+      form.patchValue(formValues, { emitEvent: false });
+      
+      // For FormArrays, we need to manually create and set the FormGroups
+      config.fields.forEach(field => {
+        const controlType = this.registry.getControlType(field.type);
+        if (controlType === 'array' && values[field.name]) {
+          const arrayValue = values[field.name];
+          if (Array.isArray(arrayValue)) {
+            const arrayControl = form.get(field.name) as FormArray;
+            if (arrayControl) {
+              // Clear existing items
+              while (arrayControl.length > 0) {
+                arrayControl.removeAt(0);
+              }
+              
+              // Add new items
+              arrayValue.forEach((item: unknown) => {
+                if (typeof item === 'object' && item !== null && !Array.isArray(item)) {
+                  const itemObj = item as Record<string, unknown>;
+                  const formGroup = this.createFormGroupForSubformItem(field, itemObj);
+                  if (formGroup) {
+                    arrayControl.push(formGroup);
+                  }
+                }
+              });
+            }
+          }
+        }
+      });
+
+      // Update validity after setting values
+      form.updateValueAndValidity();
+    } catch (error) {
+      console.error('Error setting form values:', error);
+    }
+  }
+
+  /**
+   * Create a FormGroup for a subform item based on the field configuration
+   */
+  private createFormGroupForSubformItem(field: FormField, itemValue: Record<string, unknown>): FormGroup | null {
+    // Get the subform config from the field config
+    const fieldConfig = field.config as { formConfig?: FormConfig } | undefined;
+    const subformConfig = fieldConfig?.formConfig;
+    
+    if (!subformConfig) {
+      console.warn(`Cannot create FormGroup for subform item: no formConfig found for field '${field.name}'`);
+      return null;
+    }
+
+    const formControls: { [key: string]: any } = {};
+    
+    subformConfig.fields.forEach(subField => {
+      const subFieldValue = itemValue[subField.name];
+      const controlType = this.registry.getControlType(subField.type);
+      
+      if (controlType === 'control') {
+        formControls[subField.name] = [subFieldValue ?? null];
+      } else if (controlType === 'group') {
+        formControls[subField.name] = this.fb.group(subFieldValue && typeof subFieldValue === 'object' ? subFieldValue as Record<string, unknown> : {});
+      } else if (controlType === 'array') {
+        formControls[subField.name] = this.fb.array(Array.isArray(subFieldValue) ? subFieldValue : []);
+      } else {
+        formControls[subField.name] = [subFieldValue ?? null];
+      }
+    });
+
+    return this.fb.group(formControls);
   }
 }
