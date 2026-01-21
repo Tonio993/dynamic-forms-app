@@ -1,4 +1,4 @@
-import { Component, computed, input, OnInit, inject, Type, ChangeDetectorRef, Optional } from '@angular/core';
+import { Component, computed, input, OnInit, inject, Type, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormArray, FormBuilder, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { observeOn, asyncScheduler, of, tap, timer } from 'rxjs';
 import { FormField, FormConfig } from '../../../models/form-config.model';
 import { BaseFieldComponent, ControlType } from '../base-field.component';
 import { FIELD_COMPONENT_VIEW_PROVIDERS } from '../field-component-constants';
@@ -164,22 +165,15 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
    * Add a new item to the array
    */
   addItem(): void {
-    const array = this.formArray;
-    if (!array) {
-      console.warn('SubformInputComponent: FormArray is not initialized. formControl:', this.formControl());
-      return;
-    }
+      const array = this.formArray;
+      if (!array || !this.canAddItem()) {
+        return;
+      }
 
-    if (!this.canAddItem()) {
-      console.warn('SubformInputComponent: Cannot add more items (maxItems reached or other constraint)');
-      return;
-    }
-
-    const subformConfig = this.subformConfig;
-    if (!subformConfig) {
-      console.warn('SubformInputComponent: No formConfig provided in config.');
-      return;
-    }
+      const subformConfig = this.subformConfig;
+      if (!subformConfig) {
+        return;
+      }
 
     const config = this.config();
     const dialogData: SubformItemDialogData = {
@@ -193,16 +187,13 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
       data: dialogData
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(
+      observeOn(asyncScheduler)
+    ).subscribe(result => {
       if (result && result instanceof FormGroup) {
-        // Use setTimeout to defer the update until after the current change detection cycle
-        setTimeout(() => {
-          array.push(result);
-          array.updateValueAndValidity();
-          if (this.cdr) {
-            this.cdr.detectChanges();
-          }
-        }, 0);
+        array.push(result);
+        array.updateValueAndValidity();
+        this.cdr?.detectChanges();
       }
     });
   }
@@ -218,7 +209,6 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
 
     const subformConfig = this.subformConfig;
     if (!subformConfig) {
-      console.warn('SubformInputComponent: No formConfig provided in config.');
       return;
     }
 
@@ -235,17 +225,13 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
       data: dialogData
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(
+      observeOn(asyncScheduler)
+    ).subscribe(result => {
       if (result && result instanceof FormGroup) {
-        // Use setTimeout to defer the update until after the current change detection cycle
-        setTimeout(() => {
-          // Update the form group at the specified index
-          array.setControl(index, result);
-          array.updateValueAndValidity();
-          if (this.cdr) {
-            this.cdr.detectChanges();
-          }
-        }, 0);
+        array.setControl(index, result);
+        array.updateValueAndValidity();
+        this.cdr?.detectChanges();
       }
     });
   }
@@ -280,14 +266,15 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
       }
     }
 
-    // Use setTimeout to defer the update until after the current change detection cycle
-    setTimeout(() => {
-      array.removeAt(index);
-      array.updateValueAndValidity();
-      if (this.cdr) {
-        this.cdr.detectChanges();
-      }
-    }, 0);
+    // Use RxJS observeOn to defer the update until after the current change detection cycle
+    of(null).pipe(
+      observeOn(asyncScheduler),
+      tap(() => {
+        array.removeAt(index);
+        array.updateValueAndValidity();
+        this.cdr?.detectChanges();
+      })
+    ).subscribe();
   }
 
   /**

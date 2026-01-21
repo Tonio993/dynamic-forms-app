@@ -1,11 +1,12 @@
 import { Component, inject, Type } from '@angular/core';
-import { FormGroup, FormArray, FormBuilder, ReactiveFormsModule, AbstractControl } from '@angular/forms';
+import { FormGroup, FormArray, FormBuilder, FormControl, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NgComponentOutlet } from '@angular/common';
 import { FormField, FormConfig } from '../../../models/form-config.model';
 import { FieldComponentRegistryService } from '../field-component-registry.service';
+import { ErrorMessageRegistryService } from '../error-message-registry.service';
 import { FIELD_COMPONENT_VIEW_PROVIDERS } from '../field-component-constants';
 import { ControlType } from '../base-field.component';
 
@@ -33,6 +34,7 @@ export class SubformItemDialogComponent {
   private dialogRef = inject(MatDialogRef<SubformItemDialogComponent>);
   private data = inject<SubformItemDialogData>(MAT_DIALOG_DATA);
   private registry = inject(FieldComponentRegistryService);
+  private errorMessageRegistry = inject(ErrorMessageRegistryService);
   private fb = inject(FormBuilder);
 
   formGroup: FormGroup;
@@ -52,21 +54,25 @@ export class SubformItemDialogComponent {
   }
 
   /**
-   * Clone a form group
+   * Clone a form group with proper deep cloning of nested controls
    */
   private cloneFormGroup(original: FormGroup): FormGroup {
-    const controls: { [key: string]: any } = {};
+    const controls: Record<string, FormControl | FormGroup | FormArray> = {};
     
-    Object.keys(original.controls).forEach(key => {
+    for (const key of Object.keys(original.controls)) {
       const control = original.get(key);
-      if (control instanceof FormGroup) {
-        controls[key] = this.fb.group(control.value);
-      } else if (control instanceof FormArray) {
-        controls[key] = this.fb.array(control.value);
-      } else {
-        controls[key] = [control?.value || null];
+      if (!control) {
+        continue;
       }
-    });
+      
+      if (control instanceof FormGroup) {
+        controls[key] = this.cloneFormGroup(control);
+      } else if (control instanceof FormArray) {
+        controls[key] = this.cloneFormArray(control);
+      } else {
+        controls[key] = this.fb.control(control.value, control.validator, control.asyncValidator);
+      }
+    }
 
     const clonedGroup = this.fb.group(controls);
     // Copy validators
@@ -76,23 +82,42 @@ export class SubformItemDialogComponent {
   }
 
   /**
+   * Clone a form array
+   */
+  private cloneFormArray(original: FormArray): FormArray {
+    const controls: (FormControl | FormGroup | FormArray)[] = [];
+    
+    for (const control of original.controls) {
+      if (control instanceof FormGroup) {
+        controls.push(this.cloneFormGroup(control));
+      } else if (control instanceof FormArray) {
+        controls.push(this.cloneFormArray(control));
+      } else {
+        controls.push(this.fb.control(control.value, control.validator, control.asyncValidator));
+      }
+    }
+    
+    return this.fb.array(controls);
+  }
+
+  /**
    * Create an empty form group based on the form config
    */
   private createEmptyFormGroup(): FormGroup {
-    const controls: { [key: string]: any } = {};
+    const controls: Record<string, FormControl | FormGroup | FormArray> = {};
     
-    this.formConfig.fields.forEach(field => {
+    for (const field of this.formConfig.fields) {
       const controlType = this.registry.getControlType(field.type);
       if (controlType === 'control') {
-        controls[field.name] = [null];
+        controls[field.name] = this.fb.control(null);
       } else if (controlType === 'group') {
         controls[field.name] = this.fb.group({});
       } else if (controlType === 'array') {
         controls[field.name] = this.fb.array([]);
       } else {
-        controls[field.name] = [null];
+        controls[field.name] = this.fb.control(null);
       }
-    });
+    }
 
     return this.fb.group(controls);
   }
@@ -120,7 +145,7 @@ export class SubformItemDialogComponent {
   }
 
   /**
-   * Get field error message
+   * Get field error message using the error message registry
    */
   getFieldError(fieldName: string): string {
     const control = this.getFieldControl(fieldName);
@@ -128,37 +153,20 @@ export class SubformItemDialogComponent {
       return '';
     }
 
-    const errors = control.errors;
+    const errors = control.errors as ValidationErrors;
     const field = this.formConfig.fields.find(f => f.name === fieldName);
     const fieldLabel = field?.label || field?.name || fieldName;
 
-    // Handle common errors
-    if (errors['required']) {
-      return `${fieldLabel} is required`;
-    }
-    if (errors['min']) {
-      return `Minimum value is ${errors['min'].min}`;
-    }
-    if (errors['max']) {
-      return `Maximum value is ${errors['max'].max}`;
-    }
-    if (errors['minlength']) {
-      return `Minimum length is ${errors['minlength'].requiredLength} characters`;
-    }
-    if (errors['maxlength']) {
-      return `Maximum length is ${errors['maxlength'].requiredLength} characters`;
-    }
-    if (errors['pattern']) {
-      return `Invalid format`;
-    }
-    if (errors['email']) {
-      return `Invalid email address`;
-    }
-
-    // Handle custom validator errors
+    // Try to get error message from registry for each error key
     const errorKeys = Object.keys(errors);
-    for (const key of errorKeys) {
-      const errorValue = errors[key];
+    for (const errorKey of errorKeys) {
+      const errorMessage = this.errorMessageRegistry.getErrorMessage(errorKey, errors, fieldLabel);
+      if (errorMessage) {
+        return errorMessage;
+      }
+
+      // Handle custom validator errors (fallback)
+      const errorValue = errors[errorKey];
       if (typeof errorValue === 'string') {
         return errorValue;
       }
@@ -178,9 +186,10 @@ export class SubformItemDialogComponent {
       this.dialogRef.close(this.formGroup);
     } else {
       // Mark all fields as touched to show validation errors
-      Object.keys(this.formGroup.controls).forEach(key => {
+      const controls = this.formGroup.controls;
+      for (const key of Object.keys(controls)) {
         this.formGroup.get(key)?.markAsTouched();
-      });
+      }
     }
   }
 
