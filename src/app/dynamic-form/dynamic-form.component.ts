@@ -142,8 +142,6 @@ export class DynamicFormComponent {
 
   isFieldInvalid(fieldName: string): boolean {
     const control = this.getFieldControl(fieldName);
-    // For FormArray, check if it's invalid and touched
-    // For FormControl, check if it's invalid and touched
     return !!(control && control.invalid && control.touched);
   }
 
