@@ -29,6 +29,12 @@ export interface SubformInputConfig {
   deleteButtonLabel?: string;
   /** Function to generate a description for each item */
   getItemDescription: (formGroup: FormGroup, index: number) => string;
+  /** Whether deletion of items is allowed (default: true) */
+  allowDelete?: boolean;
+  /** Whether to show confirmation dialog before deletion (default: true) */
+  confirmDelete?: boolean;
+  /** Custom confirmation message for deletion (optional) */
+  deleteConfirmationMessage?: string;
 }
 
 @Component({
@@ -253,16 +259,31 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
       return;
     }
 
-    if (index >= 0 && index < array.length) {
-      // Use setTimeout to defer the update until after the current change detection cycle
-      setTimeout(() => {
-        array.removeAt(index);
-        array.updateValueAndValidity();
-        if (this.cdr) {
-          this.cdr.detectChanges();
-        }
-      }, 0);
+    if (index < 0 || index >= array.length) {
+      return;
     }
+
+    const config = this.config();
+    const itemDescription = this.getItemDescription(array.at(index) as FormGroup, index);
+    
+    // Check if confirmation is required
+    if (config.confirmDelete !== false) {
+      const message = config.deleteConfirmationMessage || 
+        `Are you sure you want to delete "${itemDescription}"?`;
+      
+      if (!confirm(message)) {
+        return;
+      }
+    }
+
+    // Use setTimeout to defer the update until after the current change detection cycle
+    setTimeout(() => {
+      array.removeAt(index);
+      array.updateValueAndValidity();
+      if (this.cdr) {
+        this.cdr.detectChanges();
+      }
+    }, 0);
   }
 
   /**

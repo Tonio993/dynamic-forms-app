@@ -408,6 +408,9 @@ export class FormExamplesComponent {
             maxItems: 5,
             addButtonLabel: "Add Address",
             deleteButtonLabel: "Remove Address",
+            allowDelete: true,
+            confirmDelete: true,
+            deleteConfirmationMessage: "Are you sure you want to remove this address?",
             getItemDescription: (formGroup: any, index: number) => {
               const street = formGroup.get('street')?.value || '';
               const city = formGroup.get('city')?.value || '';
