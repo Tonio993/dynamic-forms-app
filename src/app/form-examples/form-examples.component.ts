@@ -1,4 +1,5 @@
 import { Component, signal, computed } from '@angular/core';
+import { timer } from 'rxjs';
 import { JsonPipe } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
@@ -625,16 +626,17 @@ export class FormExamplesComponent {
 
   onTabChange(index: number): void {
     const keys = this.exampleKeys();
-    if (keys[index]) {
-      const nextTab = keys[index];
+    const nextTab = keys[index];
+    if (nextTab) {
       // Update tab index immediately for tab animation
       this.selectedTabIndex = index;
       
       // Delay content update to allow tab animation to start first
       // Material tabs animate ~500ms, so we delay slightly to sync with the animation
-      setTimeout(() => {
+      // Using RxJS timer for declarative async scheduling
+      timer(150).subscribe(() => {
         this.selectedExample.set(nextTab);
-      }, 150); // Delay to let tab animation start before content becomes visible
+      });
     }
   }
 
