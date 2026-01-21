@@ -1,14 +1,14 @@
 import { Type } from '@angular/core';
 import { BaseFieldComponent, ControlType } from './base-field.component';
-import { TextInputComponent } from './text-input/text-input';
-import { EmailInputComponent } from './email-input/email-input';
-import { NumberInputComponent } from './number-input/number-input';
-import { PasswordInputComponent } from './password-input/password-input';
-import { DateInputComponent } from './date-input/date-input';
-import { TextareaInputComponent } from './textarea-input/textarea-input';
-import { SelectInputComponent } from './select-input/select-input';
-import { RadioInputComponent } from './radio-input/radio-input';
-import { CheckboxInputComponent } from './checkbox-input/checkbox-input';
+import { TextInputComponent } from './text-input/text-input.component';
+import { EmailInputComponent } from './email-input/email-input.component';
+import { NumberInputComponent } from './number-input/number-input.component';
+import { PasswordInputComponent } from './password-input/password-input.component';
+import { DateInputComponent } from './date-input/date-input.component';
+import { TextareaInputComponent } from './textarea-input/textarea-input.component';
+import { SelectInputComponent } from './select-input/select-input.component';
+import { RadioInputComponent } from './radio-input/radio-input.component';
+import { CheckboxInputComponent } from './checkbox-input/checkbox-input.component';
 
 /**
  * Configuration for a field component registration

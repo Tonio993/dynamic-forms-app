@@ -1,15 +1,15 @@
 /**
  * Export all field components for use in form configurations
  */
-export { TextInputComponent } from './text-input/text-input';
-export { EmailInputComponent } from './email-input/email-input';
-export { NumberInputComponent } from './number-input/number-input';
-export { PasswordInputComponent } from './password-input/password-input';
-export { DateInputComponent } from './date-input/date-input';
-export { TextareaInputComponent } from './textarea-input/textarea-input';
-export { SelectInputComponent } from './select-input/select-input';
-export { RadioInputComponent } from './radio-input/radio-input';
-export { CheckboxInputComponent } from './checkbox-input/checkbox-input';
+export { TextInputComponent } from './text-input/text-input.component';
+export { EmailInputComponent } from './email-input/email-input.component';
+export { NumberInputComponent } from './number-input/number-input.component';
+export { PasswordInputComponent } from './password-input/password-input.component';
+export { DateInputComponent } from './date-input/date-input.component';
+export { TextareaInputComponent } from './textarea-input/textarea-input.component';
+export { SelectInputComponent } from './select-input/select-input.component';
+export { RadioInputComponent } from './radio-input/radio-input.component';
+export { CheckboxInputComponent } from './checkbox-input/checkbox-input.component';
 
 /**
  * Export the registry service
