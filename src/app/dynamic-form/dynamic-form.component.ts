@@ -31,15 +31,18 @@ export class DynamicFormComponent {
   private errorMessageRegistry = inject(ErrorMessageRegistryService);
   
   // Generate unique form ID to prevent duplicate IDs when multiple forms are rendered
-  readonly formId = `form-${Math.random().toString(36).substring(2, 11)}`;
+  private static formIdCounter = 0;
+  readonly formId = `form-${++DynamicFormComponent.formIdCounter}-${Date.now()}`;
   
   dynamicForm = signal<FormGroup | null>(null);
   formData = signal<Record<string, unknown>>({});
+  private formValuesApplied = signal<boolean>(false);
+  private lastFormValuesHash = signal<string>('');
 
   // Computed values
   hasFormData = computed(() => {
     const data = this.formData();
-    return data && Object.keys(data).length > 0;
+    return Object.keys(data).length > 0;
   });
 
   isFormValid = computed(() => {
@@ -53,65 +56,80 @@ export class DynamicFormComponent {
       const config = this.formConfig();
       if (config) {
         this.buildForm(config);
+        // Reset formValuesApplied when form is rebuilt
+        this.formValuesApplied.set(false);
       }
     });
 
     // Watch for formValues changes and apply them when form is ready
+    // Only apply when formValues input actually changes, not on every form update
     effect(() => {
       const values = this.formValues();
       const form = this.dynamicForm();
       const config = this.formConfig();
-      // Only set values if form is built and config is available
-      if (values && form && config && Object.keys(values).length > 0) {
+      
+      if (!values || !form || !config || Object.keys(values).length === 0) {
+        return;
+      }
+
+      // Create a hash of the formValues to detect actual changes to the input
+      const valuesHash = JSON.stringify(values);
+      const lastHash = this.lastFormValuesHash();
+      
+      // Only apply if:
+      // 1. formValues input actually changed (different hash)
+      // 2. OR form was just built and values haven't been applied yet
+      const formJustBuilt = !this.formValuesApplied();
+      const valuesChanged = valuesHash !== lastHash;
+      
+      if (valuesChanged || formJustBuilt) {
         this.setFormValues(values);
+        this.formValuesApplied.set(true);
+        this.lastFormValuesHash.set(valuesHash);
       }
     });
   }
 
   buildForm(config: FormConfig): void {
-    const formControls: { [key: string]: any } = {};
+    const formControls: Record<string, FormControl | FormGroup | FormArray> = {};
 
     // Create form controls based on the control type required by each component
-    config.fields.forEach(field => {
+    for (const field of config.fields) {
       const componentType = this.getFieldComponentType(field);
       if (!componentType) {
-        return;
+        continue;
       }
 
       // Get control type from registry instead of instantiating component
       const controlType = this.registry.getControlType(field.type);
       if (!controlType) {
-        console.warn(`No control type registered for field type '${field.type}'. Defaulting to FormControl.`);
-        formControls[field.name] = [null];
-        return;
+        formControls[field.name] = this.fb.control(null);
+        continue;
       }
 
       formControls[field.name] = this.createControlByType(controlType);
-    });
+    }
 
     const newForm = this.fb.group(formControls);
     this.dynamicForm.set(newForm);
     
-    // Set form values if provided, after form is built
-    const values = this.formValues();
-    if (values && Object.keys(values).length > 0) {
-      this.setFormValues(values);
-    }
+    // Reset formValuesApplied flag when form is rebuilt
+    this.formValuesApplied.set(false);
   }
 
   /**
    * Creates a form control based on the control type
    */
-  private createControlByType(controlType: ControlType): any {
+  private createControlByType(controlType: ControlType): FormControl | FormGroup | FormArray {
     switch (controlType) {
       case 'control':
-        return [null];
+        return this.fb.control(null);
       case 'group':
         return this.fb.group({});
       case 'array':
         return this.fb.array([]);
       default:
-        return [null];
+        return this.fb.control(null);
     }
   }
 
@@ -165,27 +183,21 @@ export class DynamicFormComponent {
   }
 
   getFieldComponentType(field: FormField): Type<unknown> | null {
-    // Get component from the registry service based on field type
-    const component = this.registry.get(field.type);
-    
-    if (!component) {
-      console.warn(`No component registered for field type '${field.type}'. Make sure the component is registered in FieldComponentRegistryService.`);
-      return null;
-    }
-
-    return component;
+    return this.registry.get(field.type);
   }
 
   onSubmit(): void {
     const form = this.dynamicForm();
     if (form?.valid) {
       this.formData.set(form.value);
-      console.log('Form submitted:', form.value);
     } else {
       // Mark all fields as touched to show validation errors
-      Object.keys(form?.controls ?? {}).forEach(key => {
-        form?.get(key)?.markAsTouched();
-      });
+      const controls = form?.controls;
+      if (controls) {
+        for (const key of Object.keys(controls)) {
+          form.get(key)?.markAsTouched();
+        }
+      }
     }
   }
 
@@ -195,8 +207,8 @@ export class DynamicFormComponent {
     this.formData.set({});
   }
 
-  getFormValue(): any {
-    return this.dynamicForm()?.value;
+  getFormValue(): Record<string, unknown> | null {
+    return this.dynamicForm()?.value ?? null;
   }
 
   /**
@@ -206,13 +218,11 @@ export class DynamicFormComponent {
   setFormValues(values: Record<string, unknown>): void {
     const form = this.dynamicForm();
     if (!form) {
-      console.warn('Cannot set form values: form is not initialized');
       return;
     }
 
     const config = this.formConfig();
     if (!config) {
-      console.warn('Cannot set form values: form config is not available');
       return;
     }
 
@@ -220,16 +230,16 @@ export class DynamicFormComponent {
       // Build a structured value object that matches the form structure
       const formValues: Record<string, unknown> = {};
       
-      config.fields.forEach(field => {
+      for (const field of config.fields) {
         const fieldValue = values[field.name];
         if (fieldValue === undefined || fieldValue === null) {
-          return; // Skip undefined/null values
+          continue; // Skip undefined/null values
         }
 
         const controlType = this.registry.getControlType(field.type);
         if (!controlType) {
           formValues[field.name] = fieldValue;
-          return;
+          continue;
         }
 
         // Handle different control types
@@ -252,43 +262,64 @@ export class DynamicFormComponent {
           // For FormControl, use the value directly
           formValues[field.name] = fieldValue;
         }
-      });
+      }
 
       // Use patchValue to set values (allows partial updates)
       form.patchValue(formValues, { emitEvent: false });
       
       // For FormArrays, we need to manually create and set the FormGroups
-      config.fields.forEach(field => {
+      // Only rebuild if the array is empty or has different length (initial load)
+      for (const field of config.fields) {
         const controlType = this.registry.getControlType(field.type);
         if (controlType === 'array' && values[field.name]) {
           const arrayValue = values[field.name];
           if (Array.isArray(arrayValue)) {
             const arrayControl = form.get(field.name) as FormArray;
             if (arrayControl) {
-              // Clear existing items
-              while (arrayControl.length > 0) {
-                arrayControl.removeAt(0);
-              }
-              
-              // Add new items
-              arrayValue.forEach((item: unknown) => {
-                if (typeof item === 'object' && item !== null && !Array.isArray(item)) {
-                  const itemObj = item as Record<string, unknown>;
-                  const formGroup = this.createFormGroupForSubformItem(field, itemObj);
-                  if (formGroup) {
-                    arrayControl.push(formGroup);
+              // Only rebuild if array is empty or length differs (initial load scenario)
+              // This preserves user's drag-and-drop reordering
+              if (arrayControl.length === 0 || arrayControl.length !== arrayValue.length) {
+                // Clear existing items more efficiently
+                arrayControl.clear();
+                
+                // Add new items
+                for (const item of arrayValue) {
+                  if (typeof item === 'object' && item !== null && !Array.isArray(item)) {
+                    const formGroup = this.createFormGroupForSubformItem(field, item as Record<string, unknown>);
+                    if (formGroup) {
+                      arrayControl.push(formGroup);
+                    }
                   }
                 }
-              });
+              } else {
+                // Array already has items with same length - just patch values to preserve order
+                // This allows drag-and-drop reordering to persist
+                const currentValues = arrayControl.value;
+                const newValues = arrayValue;
+                
+                // Only patch if values actually differ (to avoid unnecessary updates)
+                if (JSON.stringify(currentValues) !== JSON.stringify(newValues)) {
+                  // Patch values while preserving the order of FormGroups
+                  for (let i = 0; i < Math.min(arrayControl.length, newValues.length); i++) {
+                    const itemValue = newValues[i];
+                    if (typeof itemValue === 'object' && itemValue !== null && !Array.isArray(itemValue)) {
+                      const formGroup = arrayControl.at(i) as FormGroup;
+                      if (formGroup) {
+                        formGroup.patchValue(itemValue as Record<string, unknown>, { emitEvent: false });
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
-      });
+      }
 
       // Update validity after setting values
       form.updateValueAndValidity();
     } catch (error) {
-      console.error('Error setting form values:', error);
+      // Silently handle errors - form values may be partially set
     }
   }
 
@@ -301,26 +332,28 @@ export class DynamicFormComponent {
     const subformConfig = fieldConfig?.formConfig;
     
     if (!subformConfig) {
-      console.warn(`Cannot create FormGroup for subform item: no formConfig found for field '${field.name}'`);
       return null;
     }
 
-    const formControls: { [key: string]: any } = {};
+    const formControls: Record<string, FormControl | FormGroup | FormArray> = {};
     
-    subformConfig.fields.forEach(subField => {
+    for (const subField of subformConfig.fields) {
       const subFieldValue = itemValue[subField.name];
       const controlType = this.registry.getControlType(subField.type);
       
       if (controlType === 'control') {
-        formControls[subField.name] = [subFieldValue ?? null];
+        formControls[subField.name] = this.fb.control(subFieldValue ?? null);
       } else if (controlType === 'group') {
-        formControls[subField.name] = this.fb.group(subFieldValue && typeof subFieldValue === 'object' ? subFieldValue as Record<string, unknown> : {});
+        const groupValue = subFieldValue && typeof subFieldValue === 'object' && !Array.isArray(subFieldValue)
+          ? subFieldValue as Record<string, unknown>
+          : {};
+        formControls[subField.name] = this.fb.group(groupValue);
       } else if (controlType === 'array') {
         formControls[subField.name] = this.fb.array(Array.isArray(subFieldValue) ? subFieldValue : []);
       } else {
-        formControls[subField.name] = [subFieldValue ?? null];
+        formControls[subField.name] = this.fb.control(subFieldValue ?? null);
       }
-    });
+    }
 
     return this.fb.group(formControls);
   }
