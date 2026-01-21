@@ -1,11 +1,12 @@
 import { JsonPipe, NgComponentOutlet } from '@angular/common';
 import { Component, computed, effect, inject, input, signal, Type } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { FormConfig, FormField } from '../models/form-config.model';
 import { ControlType } from './field-components/base-field.component';
+import { ErrorMessageRegistryService } from './field-components/error-message-registry.service';
 import { FieldComponentRegistryService } from './field-components/field-component-registry.service';
 
 @Component({
@@ -26,6 +27,7 @@ export class DynamicFormComponent {
   formConfig = input.required<FormConfig>();
   private fb = inject(FormBuilder);
   private registry = inject(FieldComponentRegistryService);
+  private errorMessageRegistry = inject(ErrorMessageRegistryService);
   
   // Generate unique form ID to prevent duplicate IDs when multiple forms are rendered
   readonly formId = `form-${Math.random().toString(36).substring(2, 11)}`;
@@ -106,39 +108,22 @@ export class DynamicFormComponent {
       return '';
     }
 
-    const errors = control.errors;
+    const errors = control.errors as ValidationErrors;
     const config = this.formConfig();
     const field = config.fields.find(f => f.name === fieldName);
+    const fieldLabel = this.getFieldLabel(field);
 
-    if (errors['required']) {
-      return `${this.getFieldLabel(field)} is required`;
-    }
-    if (errors['min']) {
-      return `Minimum value is ${errors['min'].min}`;
-    }
-    if (errors['max']) {
-      return `Maximum value is ${errors['max'].max}`;
-    }
-    if (errors['minlength']) {
-      return `Minimum length is ${errors['minlength'].requiredLength} characters`;
-    }
-    if (errors['maxlength']) {
-      return `Maximum length is ${errors['maxlength'].requiredLength} characters`;
-    }
-    if (errors['pattern']) {
-      return `Invalid format`;
-    }
-    if (errors['email']) {
-      return `Invalid email address`;
-    }
-    if (errors['notANumber']) {
-      return `Must be a valid number`;
-    }
-
-    // Handle custom validator errors
+    // Try to get error message from registry for each error key
     const errorKeys = Object.keys(errors);
-    for (const key of errorKeys) {
-      const errorValue = errors[key];
+    for (const errorKey of errorKeys) {
+      // Check if registry has a message for this error key
+      const errorMessage = this.errorMessageRegistry.getErrorMessage(errorKey, errors, fieldLabel);
+      if (errorMessage) {
+        return errorMessage;
+      }
+
+      // Handle custom validator errors (fallback)
+      const errorValue = errors[errorKey];
       // If error value is a string, use it directly
       if (typeof errorValue === 'string') {
         return errorValue;
