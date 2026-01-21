@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators, ValidatorFn } 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormField } from '../../../models/form-config.model';
-import { FieldComponentUtils } from '../base-field.component';
+import { BaseFieldComponent } from '../base-field.component';
 import { FIELD_COMPONENT_VIEW_PROVIDERS } from '../field-component-constants';
 
 /**
@@ -22,22 +22,19 @@ export interface SelectInputConfig {
   templateUrl: './select-input.html',
   styleUrls: ['./select-input.css']
 })
-export class SelectInputComponent implements OnInit {
-  readonly field = input.required<FormField>();
-  readonly formGroup = input.required<FormGroup>();
-  readonly formControl = input.required<FormControl>();
-  readonly isInvalid = input.required<boolean>();
-  readonly formId = input<string>('');
-
-  readonly fieldId = FieldComponentUtils.createFieldId(this.formId, this.field);
-  readonly required = FieldComponentUtils.createRequired(this.field);
-  readonly label = FieldComponentUtils.createLabel(this.field);
+export class SelectInputComponent extends BaseFieldComponent implements OnInit {
   readonly config = computed(() => (this.field().config || {}) as SelectInputConfig);
   readonly options = computed(() => this.config().options || []);
   readonly multiple = computed(() => this.config().multiple ?? false);
-  readonly ariaDescribedBy = FieldComponentUtils.createAriaDescribedBy(this.isInvalid, this.fieldId);
 
   ngOnInit(): void {
+    // Validate that options are provided
+    const config = this.config();
+    if (!config.options || !Array.isArray(config.options) || config.options.length === 0) {
+      console.warn(`SelectInputComponent: Field '${this.field().name}' requires options in config but none were provided.`);
+      return;
+    }
+
     // Apply validators to the form control
     const validators: ValidatorFn[] = [];
     const field = this.field();
