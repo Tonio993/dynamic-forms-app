@@ -1,6 +1,6 @@
 import { JsonPipe, NgComponentOutlet } from '@angular/common';
 import { Component, computed, effect, inject, input, signal, Type } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -96,10 +96,9 @@ export class DynamicFormComponent {
     }
   }
 
-  getFieldControl(fieldName: string): FormControl | null {
+  getFieldControl(fieldName: string): AbstractControl | null {
     const form = this.dynamicForm();
-    const control = form?.get(fieldName);
-    return control instanceof FormControl ? control : null;
+    return form?.get(fieldName) || null;
   }
 
   getFieldError(fieldName: string): string {
@@ -143,6 +142,8 @@ export class DynamicFormComponent {
 
   isFieldInvalid(fieldName: string): boolean {
     const control = this.getFieldControl(fieldName);
+    // For FormArray, check if it's invalid and touched
+    // For FormControl, check if it's invalid and touched
     return !!(control && control.invalid && control.touched);
   }
 
