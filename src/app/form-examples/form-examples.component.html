@@ -16,7 +16,10 @@
               <p class="example-description">{{ getExampleDescription(key) }}</p>
             </div>
 
-            <app-dynamic-form [formConfig]="examples[key]"></app-dynamic-form>
+            <app-dynamic-form 
+              [formConfig]="examples[key]"
+              [formValues]="getFormValues(key)">
+            </app-dynamic-form>
 
             <mat-divider class="json-divider"></mat-divider>
 

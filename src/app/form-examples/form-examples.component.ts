@@ -442,11 +442,182 @@ export class FormExamplesComponent {
           }
         }
       ]
+    },
+    profileEdit: {
+      name: "Edit Profile Form",
+      fields: [
+        {
+          name: "firstName",
+          type: "text",
+          required: true,
+          label: "First Name",
+          placeholder: "Enter first name",
+          config: {
+            minLength: 2,
+            maxLength: 50
+          }
+        },
+        {
+          name: "lastName",
+          type: "text",
+          required: true,
+          label: "Last Name",
+          placeholder: "Enter last name",
+          config: {
+            minLength: 2,
+            maxLength: 50
+          }
+        },
+        {
+          name: "email",
+          type: "email",
+          required: true,
+          label: "Email Address",
+          placeholder: "your.email@example.com"
+        },
+        {
+          name: "phone",
+          type: "text",
+          required: false,
+          label: "Phone Number",
+          placeholder: "+1 (555) 123-4567"
+        },
+        {
+          name: "dateOfBirth",
+          type: "date",
+          required: false,
+          label: "Date of Birth"
+        },
+        {
+          name: "bio",
+          type: "textarea",
+          required: false,
+          label: "Biography",
+          placeholder: "Tell us about yourself...",
+          config: {
+            maxLength: 500
+          }
+        },
+        {
+          name: "country",
+          type: "select",
+          required: true,
+          label: "Country",
+          config: {
+            options: ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Spain", "Italy", "Other"]
+          }
+        },
+        {
+          name: "newsletter",
+          type: "checkbox",
+          required: false,
+          label: "Subscribe to newsletter"
+        },
+        {
+          name: "emergencyContacts",
+          type: "subform",
+          required: false,
+          label: "Emergency Contacts",
+          config: {
+            formConfig: {
+              name: "Emergency Contact Form",
+              fields: [
+                {
+                  name: "name",
+                  type: "text",
+                  required: true,
+                  label: "Contact Name",
+                  placeholder: "Full name"
+                },
+                {
+                  name: "relationship",
+                  type: "select",
+                  required: true,
+                  label: "Relationship",
+                  config: {
+                    options: ["Spouse", "Parent", "Sibling", "Friend", "Colleague", "Other"]
+                  }
+                },
+                {
+                  name: "phone",
+                  type: "text",
+                  required: true,
+                  label: "Phone Number",
+                  placeholder: "+1 (555) 123-4567"
+                },
+                {
+                  name: "email",
+                  type: "email",
+                  required: false,
+                  label: "Email Address",
+                  placeholder: "contact@example.com"
+                }
+              ]
+            },
+            minItems: 0,
+            maxItems: 3,
+            addButtonLabel: "Add Contact",
+            deleteButtonLabel: "Remove Contact",
+            allowDelete: true,
+            confirmDelete: true,
+            deleteConfirmationMessage: "Are you sure you want to remove this emergency contact?",
+            allowDragDrop: true,
+            getItemDescription: (formGroup: any, index: number) => {
+              const name = formGroup.get('name')?.value || '';
+              const relationship = formGroup.get('relationship')?.value || '';
+              const phone = formGroup.get('phone')?.value || '';
+              
+              const parts: string[] = [];
+              if (name) parts.push(name);
+              if (relationship) parts.push(`(${relationship})`);
+              if (phone) parts.push(phone);
+              
+              return parts.length > 0 ? parts.join(' - ') : `Contact ${index + 1}`;
+            }
+          }
+        }
+      ]
     }
+  };
+
+  // Pre-filled form values for the profileEdit example
+  profileEditValues = {
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@example.com",
+    phone: "+1 (555) 123-4567",
+    dateOfBirth: "1990-05-15",
+    bio: "Software developer with 10+ years of experience in web development. Passionate about creating user-friendly applications.",
+    country: "United States",
+    newsletter: true,
+    emergencyContacts: [
+      {
+        name: "Jane Doe",
+        relationship: "Spouse",
+        phone: "+1 (555) 987-6543",
+        email: "jane.doe@example.com"
+      },
+      {
+        name: "Robert Smith",
+        relationship: "Friend",
+        phone: "+1 (555) 456-7890",
+        email: "robert.smith@example.com"
+      }
+    ]
   };
 
   // Computed values
   exampleKeys = computed(() => Object.keys(this.examples));
+
+  /**
+   * Get form values for a specific example
+   */
+  getFormValues(exampleKey: string): Record<string, unknown> | undefined {
+    if (exampleKey === 'profileEdit') {
+      return this.profileEditValues;
+    }
+    return undefined;
+  }
 
   selectExample(exampleKey: string): void {
     this.selectedExample.set(exampleKey);
@@ -474,7 +645,8 @@ export class FormExamplesComponent {
       survey: "Survey",
       product: "Product Form",
       login: "Login",
-      employee: "Employee with Subform"
+      employee: "Employee with Subform",
+      profileEdit: "Edit Profile (Pre-filled)"
     };
     return titles[key] || key;
   }
@@ -486,7 +658,8 @@ export class FormExamplesComponent {
       survey: "A customer satisfaction survey with rating options and feedback collection.",
       product: "A product information form for inventory management with pricing and stock tracking.",
       login: "A simple login form with username and password authentication fields.",
-      employee: "An employee registration form demonstrating the subform input component. Add, edit, and delete multiple addresses for each employee."
+      employee: "An employee registration form demonstrating the subform input component. Add, edit, and delete multiple addresses for each employee.",
+      profileEdit: "A profile edit form demonstrating pre-filled form values. This form is automatically populated with existing user data using the formValues input."
     };
     return descriptions[key] || "Dynamic form example";
   }
