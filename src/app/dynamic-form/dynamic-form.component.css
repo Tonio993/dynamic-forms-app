@@ -41,37 +41,28 @@
   min-width: 0; /* Prevents flex items from overflowing */
 }
 
-/* Ensure all mat-form-field components have consistent width */
 .form-field mat-form-field {
   width: 100%;
   display: block;
 }
 
-/* Radio group styling for consistent alignment */
-.form-field .radio-field-container {
-  width: 100%;
-}
-
-.form-field mat-radio-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-  padding: 0.5rem 0;
-}
-
-/* Checkbox styling - wrap in form field container for alignment */
+/* Radio group and checkbox styling */
+.form-field .radio-field-container,
 .form-field .checkbox-container {
   width: 100%;
   padding: 0.5rem 0;
   margin-top: 0.5rem;
 }
 
+.form-field mat-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .form-field mat-checkbox {
   display: block;
   margin: 0.5rem 0;
-  padding: 0.5rem 0;
-  width: 100%;
 }
 
 /* Error message styling */
@@ -169,7 +160,6 @@
   margin-top: 0.5rem;
 }
 
-/* Ensure consistent spacing for all field types */
 .form-field > * {
   width: 100%;
 }
