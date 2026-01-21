@@ -17,7 +17,14 @@ export { CheckboxInputComponent } from './checkbox-input/checkbox-input';
 export { FieldComponentRegistryService } from './field-component-registry.service';
 
 /**
- * Export the registry component that registers all field components
- * Import this component in your application to register all field components
+ * Export the registry services
  */
-export { FieldComponentsRegistryComponent } from './field-components-registry.component';
+export { ErrorMessageRegistryService } from './error-message-registry.service';
+export { RegistryManagerService } from './registry-manager.service';
+
+/**
+ * Export configuration files for extensibility
+ * These can be extended to add new components or error messages
+ */
+export { FIELD_COMPONENT_CONFIGS, FieldComponentConfig } from './field-component.config';
+export { ERROR_MESSAGE_CONFIGS, ErrorMessageConfig } from './error-message.config';
