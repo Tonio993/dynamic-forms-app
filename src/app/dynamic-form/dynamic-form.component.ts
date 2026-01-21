@@ -1,10 +1,11 @@
-import { Component, input, signal, computed, effect, inject, Type } from '@angular/core';
 import { JsonPipe, NgComponentOutlet } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, FormControl } from '@angular/forms';
+import { Component, computed, effect, inject, input, signal, Type } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { FormConfig, FormField } from '../models/form-config.model';
+import { ControlType } from './field-components/base-field.component';
 import { FieldComponentRegistryService } from './field-components/field-component-registry.service';
 
 @Component({
@@ -56,12 +57,41 @@ export class DynamicFormComponent {
   buildForm(config: FormConfig): void {
     const formControls: { [key: string]: any } = {};
 
-    // Create form controls without validators - components will apply their own validators
+    // Create form controls based on the control type required by each component
     config.fields.forEach(field => {
-      formControls[field.name] = [null];
+      const componentType = this.getFieldComponentType(field);
+      if (!componentType) {
+        return;
+      }
+
+      // Get control type from registry instead of instantiating component
+      const controlType = this.registry.getControlType(field.type);
+      if (!controlType) {
+        console.warn(`No control type registered for field type '${field.type}'. Defaulting to FormControl.`);
+        formControls[field.name] = [null];
+        return;
+      }
+
+      formControls[field.name] = this.createControlByType(controlType);
     });
 
     this.dynamicForm.set(this.fb.group(formControls));
+  }
+
+  /**
+   * Creates a form control based on the control type
+   */
+  private createControlByType(controlType: ControlType): any {
+    switch (controlType) {
+      case 'control':
+        return [null];
+      case 'group':
+        return this.fb.group({});
+      case 'array':
+        return this.fb.array([]);
+      default:
+        return [null];
+    }
   }
 
   getFieldControl(fieldName: string): FormControl | null {
@@ -132,15 +162,6 @@ export class DynamicFormComponent {
   }
 
   getFieldComponentType(field: FormField): Type<unknown> | null {
-    // Validate that select and radio have options in config
-    if (field.type === 'select' || field.type === 'radio') {
-      const config = field.config || {};
-      if (!config['options'] || !Array.isArray(config['options']) || config['options'].length === 0) {
-        console.warn(`Field '${field.name}' of type '${field.type}' requires options in config but none were provided.`);
-        return null;
-      }
-    }
-
     // Get component from the registry service based on field type
     const component = this.registry.get(field.type);
     
