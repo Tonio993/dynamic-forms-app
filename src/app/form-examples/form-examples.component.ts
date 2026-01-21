@@ -304,6 +304,140 @@ export class FormExamplesComponent {
           placeholder: "Keep me logged in"
         }
       ]
+    },
+    employee: {
+      name: "Employee Registration with Addresses",
+      fields: [
+        {
+          name: "firstName",
+          type: "text",
+          required: true,
+          label: "First Name",
+          placeholder: "Enter first name",
+          config: {
+            minLength: 2,
+            maxLength: 50
+          }
+        },
+        {
+          name: "lastName",
+          type: "text",
+          required: true,
+          label: "Last Name",
+          placeholder: "Enter last name",
+          config: {
+            minLength: 2,
+            maxLength: 50
+          }
+        },
+        {
+          name: "email",
+          type: "email",
+          required: true,
+          label: "Email Address",
+          placeholder: "employee@company.com"
+        },
+        {
+          name: "phone",
+          type: "text",
+          required: false,
+          label: "Phone Number",
+          placeholder: "+1 (555) 123-4567"
+        },
+        {
+          name: "addresses",
+          type: "subform",
+          required: true,
+          label: "Addresses",
+          config: {
+            formConfig: {
+              name: "Address Form",
+              fields: [
+                {
+                  name: "street",
+                  type: "text",
+                  required: true,
+                  label: "Street Address",
+                  placeholder: "123 Main St"
+                },
+                {
+                  name: "city",
+                  type: "text",
+                  required: true,
+                  label: "City",
+                  placeholder: "New York"
+                },
+                {
+                  name: "state",
+                  type: "text",
+                  required: true,
+                  label: "State/Province",
+                  placeholder: "NY"
+                },
+                {
+                  name: "zipCode",
+                  type: "text",
+                  required: true,
+                  label: "ZIP/Postal Code",
+                  placeholder: "10001",
+                  config: {
+                    pattern: "^[0-9]{5}(-[0-9]{4})?$"
+                  }
+                },
+                {
+                  name: "country",
+                  type: "select",
+                  required: true,
+                  label: "Country",
+                  config: {
+                    options: ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Other"]
+                  }
+                },
+                {
+                  name: "addressType",
+                  type: "radio",
+                  required: true,
+                  label: "Address Type",
+                  config: {
+                    options: ["Home", "Work", "Other"]
+                  }
+                }
+              ]
+            },
+            minItems: 1,
+            maxItems: 5,
+            addButtonLabel: "Add Address",
+            deleteButtonLabel: "Remove Address",
+            getItemDescription: (formGroup: any, index: number) => {
+              const street = formGroup.get('street')?.value || '';
+              const city = formGroup.get('city')?.value || '';
+              const state = formGroup.get('state')?.value || '';
+              const zipCode = formGroup.get('zipCode')?.value || '';
+              const country = formGroup.get('country')?.value || '';
+              const addressType = formGroup.get('addressType')?.value || '';
+              
+              const parts: string[] = [];
+              if (street) parts.push(street);
+              if (city) parts.push(city);
+              if (state) parts.push(state);
+              if (zipCode) parts.push(zipCode);
+              if (country) parts.push(country);
+              if (addressType) parts.push(`(${addressType})`);
+              
+              return parts.length > 0 ? parts.join(', ') : `Address ${index + 1}`;
+            }
+          }
+        },
+        {
+          name: "department",
+          type: "select",
+          required: true,
+          label: "Department",
+          config: {
+            options: ["Engineering", "Sales", "Marketing", "HR", "Finance", "Operations"]
+          }
+        }
+      ]
     }
   };
 
@@ -335,7 +469,8 @@ export class FormExamplesComponent {
       contact: "Contact Form",
       survey: "Survey",
       product: "Product Form",
-      login: "Login"
+      login: "Login",
+      employee: "Employee with Subform"
     };
     return titles[key] || key;
   }
@@ -346,7 +481,8 @@ export class FormExamplesComponent {
       contact: "A contact form for customer inquiries with subject categorization and message validation.",
       survey: "A customer satisfaction survey with rating options and feedback collection.",
       product: "A product information form for inventory management with pricing and stock tracking.",
-      login: "A simple login form with username and password authentication fields."
+      login: "A simple login form with username and password authentication fields.",
+      employee: "An employee registration form demonstrating the subform input component. Add, edit, and delete multiple addresses for each employee."
     };
     return descriptions[key] || "Dynamic form example";
   }
