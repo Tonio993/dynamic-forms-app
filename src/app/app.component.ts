@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormConfig } from './models/form-config.model';
 import { DynamicFormComponent } from './dynamic-form/dynamic-form.component';
 import { FormExamplesComponent } from './form-examples/form-examples.component';
-import { FieldComponentsRegistryComponent } from './dynamic-form/field-components/field-components-registry.component';
+import { RegistryManagerService } from './dynamic-form/field-components/registry-manager.service';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +13,6 @@ import { FieldComponentsRegistryComponent } from './dynamic-form/field-component
   imports: [
     DynamicFormComponent,
     FormExamplesComponent,
-    FieldComponentsRegistryComponent,
     MatButtonModule,
     MatToolbarModule,
     MatIconModule
@@ -24,6 +23,12 @@ import { FieldComponentsRegistryComponent } from './dynamic-form/field-component
 export class AppComponent {
   title = 'dynamic-forms-app';
   currentView = signal<'main' | 'examples'>('main');
+
+  constructor(private registryManager: RegistryManagerService) {
+    // Initialize all registries when the app component is created
+    // This ensures registries are ready before any forms are rendered
+    this.registryManager.initializeAll();
+  }
 
   formConfig: FormConfig = {
     name: "User Registration Form",
