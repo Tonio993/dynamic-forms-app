@@ -29,6 +29,12 @@
 
 .tab-content {
   padding: 2rem;
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.tab-content.content-visible {
+  opacity: 1;
 }
 
 .example-info {

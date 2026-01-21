@@ -10,19 +10,19 @@
     <mat-tab-group [selectedIndex]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
       @for (key of exampleKeys(); track key) {
         <mat-tab [label]="getExampleTitle(key)">
-          <div class="tab-content">
+          <div class="tab-content" [class.content-visible]="selectedExample() === key">
             <div class="example-info">
-              <h2>{{ currentFormConfig().name }}</h2>
+              <h2>{{ examples[key].name }}</h2>
               <p class="example-description">{{ getExampleDescription(key) }}</p>
             </div>
 
-            <app-dynamic-form [formConfig]="currentFormConfig()"></app-dynamic-form>
+            <app-dynamic-form [formConfig]="examples[key]"></app-dynamic-form>
 
             <mat-divider class="json-divider"></mat-divider>
 
             <div class="json-preview">
               <h3>JSON Configuration</h3>
-              <pre><code>{{ currentFormConfig() | json }}</code></pre>
+              <pre><code>{{ examples[key] | json }}</code></pre>
             </div>
           </div>
         </mat-tab>

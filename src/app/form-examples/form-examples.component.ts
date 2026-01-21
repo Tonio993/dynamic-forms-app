@@ -308,7 +308,6 @@ export class FormExamplesComponent {
   };
 
   // Computed values
-  currentFormConfig = computed(() => this.examples[this.selectedExample()]);
   exampleKeys = computed(() => Object.keys(this.examples));
 
   selectExample(exampleKey: string): void {
@@ -318,8 +317,15 @@ export class FormExamplesComponent {
   onTabChange(index: number): void {
     const keys = this.exampleKeys();
     if (keys[index]) {
-      this.selectedExample.set(keys[index]);
+      const newExample = keys[index];
+      // Update tab index immediately for tab animation
       this.selectedTabIndex = index;
+      
+      // Delay content update to allow tab animation to start first
+      // Material tabs animate ~500ms, so we delay slightly to sync with the animation
+      setTimeout(() => {
+        this.selectedExample.set(newExample);
+      }, 150); // Delay to let tab animation start before content becomes visible
     }
   }
 
