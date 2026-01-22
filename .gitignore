@@ -45,3 +45,6 @@ Thumbs.db
 .gitmessage
 *.md
 !README.md
+
+# Lock files
+package-lock.json
