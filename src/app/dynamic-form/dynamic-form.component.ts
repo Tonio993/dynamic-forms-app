@@ -140,7 +140,7 @@ export class DynamicFormComponent {
    * @param config - The form configuration object
    */
   buildForm(config: FormConfig): void {
-    const formControls: Record<string, FormControl | FormGroup | FormArray> = {};
+    const formControls: Record<string, AbstractControl> = {};
 
     for (const field of config.fields) {
       const componentType = this.getFieldComponentType(field);
@@ -154,7 +154,8 @@ export class DynamicFormComponent {
         continue;
       }
 
-      formControls[field.name] = this.createControlByType(controlType);
+      const initialValue = this.registry.getInitialValue(field.type);
+      formControls[field.name] = this.createControlByType(controlType, initialValue);
     }
 
     const newForm = this.fb.group(formControls);
@@ -167,18 +168,19 @@ export class DynamicFormComponent {
    * Creates a form control instance based on the specified control type.
    * 
    * @param controlType - The type of control to create ('control', 'group', or 'array')
+   * @param initialValue - Optional initial value for the control (only used for 'control' type)
    * @returns A new FormControl, FormGroup, or FormArray instance
    */
-  private createControlByType(controlType: ControlType): FormControl | FormGroup | FormArray {
+  private createControlByType(controlType: ControlType, initialValue?: unknown): AbstractControl {
     switch (controlType) {
       case 'control':
-        return this.fb.control(null);
+        return this.fb.control(initialValue !== undefined ? initialValue : null);
       case 'group':
         return this.fb.group({});
       case 'array':
         return this.fb.array([]);
       default:
-        return this.fb.control(null);
+        return this.fb.control(initialValue !== undefined ? initialValue : null);
     }
   }
 

@@ -34,13 +34,33 @@ import { FIELD_COMPONENT_VIEW_PROVIDERS } from '../field-component-constants';
 export class CheckboxInputComponent extends BaseFieldComponent implements OnInit {
 
   /**
+   * Returns the initial value for checkbox form controls.
+   * 
+   * Checkboxes default to false instead of null to represent an unchecked state.
+   * 
+   * @returns false as the default initial value for checkboxes
+   */
+  override getInitialValue(): unknown {
+    return false;
+  }
+
+  /**
    * Initializes the component and applies validators to the form control.
    * 
    * This method sets up validation rules including:
    * - Required validator (if field is marked as required)
    * - Custom validators (if provided in field.validators)
+   * 
+   * It also ensures the control value is set to false if it's currently null,
+   * maintaining the default value even if the control was created before this component.
    */
   ngOnInit(): void {
+    const control = this.formControl();
+    
+    if (control && control.value === null) {
+      control.setValue(false, { emitEvent: false });
+    }
+
     const validators: ValidatorFn[] = [];
     const field = this.field();
 
@@ -57,8 +77,8 @@ export class CheckboxInputComponent extends BaseFieldComponent implements OnInit
     }
 
     if (validators.length > 0) {
-      this.formControl().setValidators(validators);
-      this.formControl().updateValueAndValidity();
+      control.setValidators(validators);
+      control.updateValueAndValidity();
     }
   }
 }

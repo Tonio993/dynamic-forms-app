@@ -1,6 +1,28 @@
-import { Injectable, Type, Injector, runInInjectionContext, inject } from '@angular/core';
-import { ControlType, BaseFieldComponent } from './base-field.component';
+import { inject, Injectable, Injector, runInInjectionContext, Type } from '@angular/core';
+import { BaseFieldComponent, ControlType } from './base-field.component';
 import { FIELD_COMPONENT_CONFIGS } from './field-component.config';
+
+/**
+ * Registration information for a field component.
+ * 
+ * This interface encapsulates all the information needed to register a field component
+ * in the registry service, including the component type, control type, and initial value.
+ * 
+ * @public
+ */
+export interface FieldComponentRegistration {
+  /** The field type identifier (e.g., 'text', 'email', 'number') */
+  fieldType: string;
+  
+  /** The Angular component class for this field type */
+  component: Type<unknown>;
+  
+  /** The type of form control this component uses */
+  controlType: ControlType;
+  
+  /** The initial value for the form control (optional) */
+  initialValue?: unknown;
+}
 
 /**
  * Service for registering and retrieving field components by type.
@@ -30,19 +52,25 @@ import { FIELD_COMPONENT_CONFIGS } from './field-component.config';
 export class FieldComponentRegistryService {
   private readonly componentRegistry = new Map<string, Type<unknown>>();
   private readonly controlTypeRegistry = new Map<string, ControlType>();
+  private readonly initialValueRegistry = new Map<string, unknown>();
   private initialized = false;
   private readonly injector = inject(Injector);
 
   /**
-   * Registers a component and its control type for a specific field type.
+   * Registers a component with all its registration information.
    * 
-   * @param fieldType - The string identifier for the field type (e.g., 'text', 'email')
-   * @param component - The Angular component class for this field type
-   * @param controlType - The type of form control this component uses
+   * This method accepts a single `FieldComponentRegistration` object that encapsulates
+   * all the information needed to register a field component, including the component
+   * type, control type, and initial value.
+   * 
+   * @param registration - The registration information object containing all component details
    */
-  register(fieldType: string, component: Type<unknown>, controlType: ControlType): void {
-    this.componentRegistry.set(fieldType, component);
-    this.controlTypeRegistry.set(fieldType, controlType);
+  register(registration: FieldComponentRegistration): void {
+    this.componentRegistry.set(registration.fieldType, registration.component);
+    this.controlTypeRegistry.set(registration.fieldType, registration.controlType);
+    if (registration.initialValue !== undefined) {
+      this.initialValueRegistry.set(registration.fieldType, registration.initialValue);
+    }
   }
 
   /**
@@ -72,6 +100,23 @@ export class FieldComponentRegistryService {
   getControlType(fieldType: string): ControlType | null {
     this.ensureInitialized();
     return this.controlTypeRegistry.get(fieldType) || null;
+  }
+
+  /**
+   * Retrieves the initial value for a specific field type.
+   * 
+   * This is used by the dynamic form component to set the default value
+   * when creating form controls. Components can specify their own initial
+   * values by overriding the `getInitialValue()` method in BaseFieldComponent.
+   * 
+   * Automatically initializes the registry if it hasn't been initialized yet.
+   * 
+   * @param fieldType - The field type identifier
+   * @returns The initial value, or null if not specified
+   */
+  getInitialValue(fieldType: string): unknown {
+    this.ensureInitialized();
+    return this.initialValueRegistry.has(fieldType) ? this.initialValueRegistry.get(fieldType) : null;
   }
 
   /**
@@ -107,6 +152,7 @@ export class FieldComponentRegistryService {
   clear(): void {
     this.componentRegistry.clear();
     this.controlTypeRegistry.clear();
+    this.initialValueRegistry.clear();
   }
 
   /**
@@ -123,7 +169,16 @@ export class FieldComponentRegistryService {
 
     for (const config of FIELD_COMPONENT_CONFIGS) {
       const controlType = this.getControlTypeFromComponent(config.component);
-      this.register(config.type, config.component, controlType);
+      const initialValue = this.getInitialValueFromComponent(config.component);
+      
+      const registration: FieldComponentRegistration = {
+        fieldType: config.type,
+        component: config.component,
+        controlType: controlType,
+        initialValue: initialValue
+      };
+      
+      this.register(registration);
     }
 
     this.initialized = true;
@@ -143,6 +198,24 @@ export class FieldComponentRegistryService {
     return runInInjectionContext(this.injector, () => {
       const instance = new componentType();
       return instance.getControlType();
+    });
+  }
+
+  /**
+   * Creates a component instance in injection context and retrieves its initial value.
+   * 
+   * This method uses Angular's `runInInjectionContext` to properly instantiate
+   * components that may have dependencies, ensuring the injection context is
+   * available during component creation.
+   * 
+   * @param componentType - The component class constructor
+   * @returns The initial value returned by the component's `getInitialValue()` method, or null if not overridden
+   */
+  private getInitialValueFromComponent<T extends BaseFieldComponent>(componentType: new () => T): unknown {
+    return runInInjectionContext(this.injector, () => {
+      const instance = new componentType();
+      const initialValue = instance.getInitialValue();
+      return initialValue !== null ? initialValue : undefined;
     });
   }
 }

@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
-import { FormConfig } from './models/form-config.model';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { DynamicFormComponent } from './dynamic-form/dynamic-form.component';
-import { FormExamplesComponent } from './form-examples/form-examples.component';
 import { RegistryManagerService } from './dynamic-form/field-components/registry-manager.service';
+import { FormExamplesComponent } from './form-examples/form-examples.component';
+import { FormConfig } from './models/form-config.model';
 
 /**
  * Root application component.

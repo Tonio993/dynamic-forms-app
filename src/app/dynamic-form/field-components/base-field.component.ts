@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup } from '@angular/forms';
+import { AbstractControl, FormGroup } from '@angular/forms';
 import { FormField } from '../../models/form-config.model';
 
 /**
@@ -129,5 +129,29 @@ export class BaseFieldComponent {
    */
   getControlType(): ControlType {
     return 'control';
+  }
+
+  /**
+   * Returns the initial value for the form control.
+   * 
+   * This method allows components to specify a default initial value when the
+   * form control is created. The dynamic form component uses this value when
+   * creating the FormControl if no explicit value is provided.
+   * 
+   * Child components should override this method if they need a specific initial
+   * value other than null. For example, checkbox components typically default to false.
+   * 
+   * @returns The initial value for the form control, or null if no default is needed
+   * 
+   * @example
+   * ```typescript
+   * // For a checkbox component that defaults to false
+   * override getInitialValue(): unknown {
+   *   return false;
+   * }
+   * ```
+   */
+  getInitialValue(): unknown {
+    return null;
   }
 }
