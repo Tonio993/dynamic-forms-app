@@ -136,6 +136,35 @@
   color: var(--mat-sys-on-surface);
 }
 
+/* Form errors display */
+.form-errors-display {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background-color: var(--mat-sys-error-container, #fce7e7);
+  border-radius: 8px;
+  border: 1px solid var(--mat-sys-error, #b3261e);
+}
+
+.form-errors-display h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-error-container, #410e0b);
+}
+
+.form-errors-display pre {
+  margin: 0;
+  padding: 1.25rem;
+  background-color: var(--mat-sys-surface);
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  border: 1px solid var(--mat-sys-error, #b3261e);
+  color: var(--mat-sys-on-surface);
+}
+
 /* No config state */
 .no-config {
   max-width: 800px;

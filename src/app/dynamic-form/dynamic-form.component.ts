@@ -72,6 +72,9 @@ export class DynamicFormComponent {
   /** Signal containing the submitted form data */
   formData = signal<Record<string, unknown>>({});
   
+  /** Signal containing form validation errors when submit is attempted with invalid form */
+  formErrors = signal<Record<string, ValidationErrors>>({});
+  
   /** Tracks whether initial form values have been applied */
   private formValuesApplied = signal<boolean>(false);
   
@@ -86,6 +89,16 @@ export class DynamicFormComponent {
   hasFormData = computed(() => {
     const data = this.formData();
     return Object.keys(data).length > 0;
+  });
+
+  /**
+   * Computed signal indicating whether the form has validation errors.
+   * 
+   * @returns True if form errors exist and have at least one property
+   */
+  hasFormErrors = computed(() => {
+    const errors = this.formErrors();
+    return Object.keys(errors).length > 0;
   });
 
   /**
@@ -270,29 +283,44 @@ export class DynamicFormComponent {
    * Handles form submission.
    * 
    * If the form is valid, the form data is stored in the `formData` signal.
-   * If invalid, all fields are marked as touched to display validation errors.
+   * If invalid, all fields are marked as touched to display validation errors,
+   * and validation errors are collected and stored in the `formErrors` signal.
+   * Only fields with actual validation errors are included in the errors object.
    */
   onSubmit(): void {
     const form = this.dynamicForm();
     if (form?.valid) {
       this.formData.set(form.value);
+      this.formErrors.set({});
     } else {
       const controls = form?.controls;
+      const errors: Record<string, ValidationErrors> = {};
+      
       if (controls) {
         for (const key of Object.keys(controls)) {
-          form.get(key)?.markAsTouched();
+          const control = form.get(key);
+          if (control && control.errors && Object.keys(control.errors).length > 0) {
+            control.markAsTouched();
+            errors[key] = control.errors;
+          } else if (control) {
+            control.markAsTouched();
+          }
         }
       }
+      
+      this.formErrors.set(errors);
+      this.formData.set({});
     }
   }
 
   /**
-   * Resets the form to its initial state and clears submitted data.
+   * Resets the form to its initial state and clears submitted data and errors.
    */
   resetForm(): void {
     const form = this.dynamicForm();
     form?.reset();
     this.formData.set({});
+    this.formErrors.set({});
   }
 
   /**
