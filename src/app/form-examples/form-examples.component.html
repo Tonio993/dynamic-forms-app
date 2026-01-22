@@ -18,7 +18,7 @@
 
             <app-dynamic-form 
               [formConfig]="examples[key]"
-              [formValues]="getFormValues(key)">
+              [formValues]="key === selectedExample() ? currentFormValues() : undefined">
             </app-dynamic-form>
 
             <mat-divider class="json-divider"></mat-divider>

@@ -498,10 +498,23 @@ export class FormExamplesComponent {
   exampleKeys = computed(() => Object.keys(this.examples));
 
   /**
-   * Gets pre-filled form values for a specific example.
+   * Computed signal for pre-filled form values for the currently selected example.
    * 
    * Currently only the 'profileEdit' example has pre-filled values.
-   * This method can be extended to support pre-filled values for other examples.
+   * This can be extended to support pre-filled values for other examples.
+   * 
+   * @returns Object containing form values, or undefined if no values are configured
+   */
+  readonly currentFormValues = computed(() => {
+    const exampleKey = this.selectedExample();
+    if (exampleKey === 'profileEdit') {
+      return this.profileEditValues;
+    }
+    return undefined;
+  });
+
+  /**
+   * Gets pre-filled form values for a specific example.
    * 
    * @param exampleKey - The identifier of the example
    * @returns Object containing form values, or undefined if no values are configured

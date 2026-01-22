@@ -19,20 +19,20 @@
     }
   </div>
 
-  @if (!formArray || formArray.length === 0) {
+  @if (!formArray() || formArray()!.length === 0) {
     <div class="empty-state">
       <p>No items added yet. Click "Add Item" to create your first entry.</p>
     </div>
   }
 
-  @if (formArray && formArray.length > 0) {
+  @if (formArray() && formArray()!.length > 0) {
     <div 
       class="subform-items-wrapper"
       cdkDropList
       [cdkDropListDisabled]="config().allowDragDrop === false"
       (cdkDropListDropped)="dropItem($event)">
       <mat-list class="subform-items-list">
-        @for (formGroup of formGroups; track $index) {
+        @for (formGroup of formGroups(); track $index) {
           <mat-list-item 
             class="subform-item"
             cdkDrag

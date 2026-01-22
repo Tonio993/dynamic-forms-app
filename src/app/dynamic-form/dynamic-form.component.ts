@@ -324,12 +324,25 @@ export class DynamicFormComponent {
   }
 
   /**
-   * Gets the current form value.
+   * Computed signal for the current form value.
+   * 
+   * This signal automatically updates whenever the form value changes,
+   * providing reactive access to the form's current state.
    * 
    * @returns The form value object, or null if form is not initialized
    */
-  getFormValue(): Record<string, unknown> | null {
+  readonly formValue = computed(() => {
     return this.dynamicForm()?.value ?? null;
+  });
+
+  /**
+   * Gets the current form value.
+   * 
+   * @deprecated Use formValue signal instead for better reactivity
+   * @returns The form value object, or null if form is not initialized
+   */
+  getFormValue(): Record<string, unknown> | null {
+    return this.formValue();
   }
 
   /**

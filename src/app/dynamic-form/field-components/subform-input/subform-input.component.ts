@@ -139,34 +139,34 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
   }
 
   /**
-   * Gets the FormArray control instance.
+   * Computed signal for the FormArray control instance.
    * 
    * @returns The FormArray control, or null if the control is not a FormArray
    */
-  get formArray(): FormArray | null {
+  readonly formArray = computed(() => {
     const control = this.formControl();
     return control instanceof FormArray ? control : null;
-  }
+  });
 
   /**
-   * Gets the subform configuration from the component config.
+   * Computed signal for the subform configuration from the component config.
    * 
    * @returns The FormConfig for subform items, or null if not configured
    */
-  get subformConfig(): FormConfig | null {
+  readonly subformConfig = computed(() => {
     const config = this.config();
     return (config?.formConfig as FormConfig | undefined) || null;
-  }
+  });
 
   /**
-   * Gets all FormGroup instances in the FormArray.
+   * Computed signal for all FormGroup instances in the FormArray.
    * 
    * @returns Array of FormGroup controls representing subform items
    */
-  get formGroups(): FormGroup[] {
-    const array = this.formArray;
+  readonly formGroups = computed(() => {
+    const array = this.formArray();
     return array ? (array.controls as FormGroup[]) : [];
-  }
+  });
 
   /**
    * Gets the component type for a field from the registry.
@@ -220,15 +220,15 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
   }
 
   /**
-   * Checks if a new item can be added to the array.
+   * Computed signal indicating whether a new item can be added to the array.
    * 
    * Returns false if the maxItems constraint would be violated by adding
    * another item. Always returns true if no maxItems constraint is set.
    * 
    * @returns True if an item can be added, false otherwise
    */
-  canAddItem(): boolean {
-    const array = this.formArray;
+  readonly canAddItem = computed(() => {
+    const array = this.formArray();
     if (!array) {
       return true;
     }
@@ -237,10 +237,10 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
       return array.length < config.maxItems;
     }
     return true;
-  }
+  });
 
   /**
-   * Checks if an item can be deleted from the array.
+   * Computed signal indicating whether an item can be deleted from the array.
    * 
    * Returns false if:
    * - Deletion is explicitly disabled (allowDelete === false)
@@ -248,8 +248,8 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
    * 
    * @returns True if an item can be deleted, false otherwise
    */
-  canDeleteItem(): boolean {
-    const array = this.formArray;
+  readonly canDeleteItem = computed(() => {
+    const array = this.formArray();
     if (!array) {
       return false;
     }
@@ -261,7 +261,7 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
       return array.length > config.minItems;
     }
     return array.length > 0;
-  }
+  });
 
   /**
    * Opens a dialog to add a new item to the subform array.
@@ -271,12 +271,12 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
    * detection issues.
    */
   addItem(): void {
-    const array = this.formArray;
+    const array = this.formArray();
     if (!array || !this.canAddItem()) {
       return;
     }
 
-    const subformConfig = this.subformConfig;
+    const subformConfig = this.subformConfig();
     if (!subformConfig) {
       return;
     }
@@ -314,12 +314,12 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
    * @param index - The index of the item to edit
    */
   editItem(index: number): void {
-    const array = this.formArray;
+    const array = this.formArray();
     if (!array || index < 0 || index >= array.length) {
       return;
     }
 
-    const subformConfig = this.subformConfig;
+    const subformConfig = this.subformConfig();
     if (!subformConfig) {
       return;
     }
@@ -358,7 +358,7 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
    * @param index - The index of the item to delete
    */
   deleteItem(index: number): void {
-    const array = this.formArray;
+    const array = this.formArray();
     if (!array) {
       return;
     }
@@ -402,7 +402,7 @@ export class SubformInputComponent extends BaseFieldComponent implements OnInit 
    * @param event - The CDK drag drop event containing previous and current indices
    */
   dropItem(event: CdkDragDrop<FormGroup[]>): void {
-    const array = this.formArray;
+    const array = this.formArray();
     if (!array) {
       return;
     }
