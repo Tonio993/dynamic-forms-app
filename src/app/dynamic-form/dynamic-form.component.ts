@@ -9,6 +9,33 @@ import { ControlType } from './field-components/base-field.component';
 import { ErrorMessageRegistryService } from './field-components/error-message-registry.service';
 import { FieldComponentRegistryService } from './field-components/field-component-registry.service';
 
+/**
+ * Main dynamic form component that renders forms based on configuration.
+ * 
+ * This component accepts a `FormConfig` object and automatically generates the
+ * appropriate form structure, including form controls and field components. It
+ * handles form validation, error display, and value management.
+ * 
+ * The component uses Angular's `NgComponentOutlet` to dynamically render field
+ * components based on the field type, ensuring complete decoupling between the
+ * form structure and the field component implementations.
+ * 
+ * @example
+ * ```typescript
+ * const config: FormConfig = {
+ *   name: 'User Form',
+ *   fields: [
+ *     { name: 'email', type: 'email', required: true, label: 'Email' }
+ *   ]
+ * };
+ * ```
+ * 
+ * ```html
+ * <app-dynamic-form [formConfig]="config"></app-dynamic-form>
+ * ```
+ * 
+ * @public
+ */
 @Component({
   selector: 'app-dynamic-form',
   standalone: true,
@@ -24,45 +51,62 @@ import { FieldComponentRegistryService } from './field-components/field-componen
   styleUrls: ['./dynamic-form.component.css']
 })
 export class DynamicFormComponent {
+  /** Required form configuration that defines the form structure */
   formConfig = input.required<FormConfig>();
+  
+  /** Optional initial form values to pre-fill the form */
   formValues = input<Record<string, unknown>>();
+  
   private fb = inject(FormBuilder);
   private registry = inject(FieldComponentRegistryService);
   private errorMessageRegistry = inject(ErrorMessageRegistryService);
   
-  // Generate unique form ID to prevent duplicate IDs when multiple forms are rendered
   private static formIdCounter = 0;
+  
+  /** Unique identifier for this form instance, used to generate unique field IDs */
   readonly formId = `form-${++DynamicFormComponent.formIdCounter}-${Date.now()}`;
   
+  /** Signal containing the reactive form group instance */
   dynamicForm = signal<FormGroup | null>(null);
+  
+  /** Signal containing the submitted form data */
   formData = signal<Record<string, unknown>>({});
+  
+  /** Tracks whether initial form values have been applied */
   private formValuesApplied = signal<boolean>(false);
+  
+  /** Hash of the last applied form values, used to detect actual changes */
   private lastFormValuesHash = signal<string>('');
 
-  // Computed values
+  /**
+   * Computed signal indicating whether the form has submitted data.
+   * 
+   * @returns True if form data exists and has at least one property
+   */
   hasFormData = computed(() => {
     const data = this.formData();
     return Object.keys(data).length > 0;
   });
 
+  /**
+   * Computed signal indicating whether the form is currently valid.
+   * 
+   * @returns True if the form is valid, false otherwise
+   */
   isFormValid = computed(() => {
     const form = this.dynamicForm();
     return form?.valid ?? false;
   });
 
   constructor() {
-    // Build form when config changes
     effect(() => {
       const config = this.formConfig();
       if (config) {
         this.buildForm(config);
-        // Reset formValuesApplied when form is rebuilt
         this.formValuesApplied.set(false);
       }
     });
 
-    // Watch for formValues changes and apply them when form is ready
-    // Only apply when formValues input actually changes, not on every form update
     effect(() => {
       const values = this.formValues();
       const form = this.dynamicForm();
@@ -72,13 +116,9 @@ export class DynamicFormComponent {
         return;
       }
 
-      // Create a hash of the formValues to detect actual changes to the input
       const valuesHash = JSON.stringify(values);
       const lastHash = this.lastFormValuesHash();
       
-      // Only apply if:
-      // 1. formValues input actually changed (different hash)
-      // 2. OR form was just built and values haven't been applied yet
       const formJustBuilt = !this.formValuesApplied();
       const valuesChanged = valuesHash !== lastHash;
       
@@ -90,17 +130,24 @@ export class DynamicFormComponent {
     });
   }
 
+  /**
+   * Builds the reactive form structure from the provided configuration.
+   * 
+   * This method creates the appropriate Angular form controls (FormControl, FormGroup, or FormArray)
+   * based on the control type required by each field component. The control type is determined
+   * by querying the field component registry.
+   * 
+   * @param config - The form configuration object
+   */
   buildForm(config: FormConfig): void {
     const formControls: Record<string, FormControl | FormGroup | FormArray> = {};
 
-    // Create form controls based on the control type required by each component
     for (const field of config.fields) {
       const componentType = this.getFieldComponentType(field);
       if (!componentType) {
         continue;
       }
 
-      // Get control type from registry instead of instantiating component
       const controlType = this.registry.getControlType(field.type);
       if (!controlType) {
         formControls[field.name] = this.fb.control(null);
@@ -113,12 +160,14 @@ export class DynamicFormComponent {
     const newForm = this.fb.group(formControls);
     this.dynamicForm.set(newForm);
     
-    // Reset formValuesApplied flag when form is rebuilt
     this.formValuesApplied.set(false);
   }
 
   /**
-   * Creates a form control based on the control type
+   * Creates a form control instance based on the specified control type.
+   * 
+   * @param controlType - The type of control to create ('control', 'group', or 'array')
+   * @returns A new FormControl, FormGroup, or FormArray instance
    */
   private createControlByType(controlType: ControlType): FormControl | FormGroup | FormArray {
     switch (controlType) {
@@ -133,11 +182,27 @@ export class DynamicFormComponent {
     }
   }
 
+  /**
+   * Retrieves the form control for a specific field by name.
+   * 
+   * @param fieldName - The name of the field
+   * @returns The AbstractControl instance, or null if not found
+   */
   getFieldControl(fieldName: string): AbstractControl | null {
     const form = this.dynamicForm();
     return form?.get(fieldName) || null;
   }
 
+  /**
+   * Gets the error message for a field's validation errors.
+   * 
+   * This method attempts to retrieve error messages from the error message registry first.
+   * If no registered message is found, it falls back to checking for string error values
+   * or error objects with a 'message' property.
+   * 
+   * @param fieldName - The name of the field
+   * @returns The error message string, or empty string if no error
+   */
   getFieldError(fieldName: string): string {
     const control = this.getFieldControl(fieldName);
     if (!control || !control.errors || !control.touched) {
@@ -149,22 +214,17 @@ export class DynamicFormComponent {
     const field = config.fields.find(f => f.name === fieldName);
     const fieldLabel = this.getFieldLabel(field);
 
-    // Try to get error message from registry for each error key
     const errorKeys = Object.keys(errors);
     for (const errorKey of errorKeys) {
-      // Check if registry has a message for this error key
       const errorMessage = this.errorMessageRegistry.getErrorMessage(errorKey, errors, fieldLabel);
       if (errorMessage) {
         return errorMessage;
       }
 
-      // Handle custom validator errors (fallback)
       const errorValue = errors[errorKey];
-      // If error value is a string, use it directly
       if (typeof errorValue === 'string') {
         return errorValue;
       }
-      // If error value is an object with a message property
       if (errorValue && typeof errorValue === 'object' && 'message' in errorValue) {
         return String(errorValue.message);
       }
@@ -173,25 +233,48 @@ export class DynamicFormComponent {
     return '';
   }
 
+  /**
+   * Gets the display label for a field.
+   * 
+   * @param field - The field configuration, or undefined
+   * @returns The field label, name, or empty string
+   */
   getFieldLabel(field: FormField | undefined): string {
     return field?.label || field?.name || '';
   }
 
+  /**
+   * Checks if a field is invalid and has been touched.
+   * 
+   * @param fieldName - The name of the field
+   * @returns True if the field is invalid and touched, false otherwise
+   */
   isFieldInvalid(fieldName: string): boolean {
     const control = this.getFieldControl(fieldName);
     return !!(control && control.invalid && control.touched);
   }
 
+  /**
+   * Gets the component type for a field from the registry.
+   * 
+   * @param field - The field configuration
+   * @returns The component class, or null if not found
+   */
   getFieldComponentType(field: FormField): Type<unknown> | null {
     return this.registry.get(field.type);
   }
 
+  /**
+   * Handles form submission.
+   * 
+   * If the form is valid, the form data is stored in the `formData` signal.
+   * If invalid, all fields are marked as touched to display validation errors.
+   */
   onSubmit(): void {
     const form = this.dynamicForm();
     if (form?.valid) {
       this.formData.set(form.value);
     } else {
-      // Mark all fields as touched to show validation errors
       const controls = form?.controls;
       if (controls) {
         for (const key of Object.keys(controls)) {
@@ -201,19 +284,33 @@ export class DynamicFormComponent {
     }
   }
 
+  /**
+   * Resets the form to its initial state and clears submitted data.
+   */
   resetForm(): void {
     const form = this.dynamicForm();
     form?.reset();
     this.formData.set({});
   }
 
+  /**
+   * Gets the current form value.
+   * 
+   * @returns The form value object, or null if form is not initialized
+   */
   getFormValue(): Record<string, unknown> | null {
     return this.dynamicForm()?.value ?? null;
   }
 
   /**
-   * Set form values from a JSON object
-   * Handles nested structures including FormArrays (subforms)
+   * Sets form values from a JSON object.
+   * 
+   * This method handles nested structures including FormArrays (subforms). It intelligently
+   * preserves FormArray order when the array already has items with the same length, allowing
+   * drag-and-drop reordering to persist. Only rebuilds arrays when they are empty or have
+   * different lengths (initial load scenario).
+   * 
+   * @param values - Object containing field names as keys and their values
    */
   setFormValues(values: Record<string, unknown>): void {
     const form = this.dynamicForm();
@@ -227,13 +324,12 @@ export class DynamicFormComponent {
     }
 
     try {
-      // Build a structured value object that matches the form structure
       const formValues: Record<string, unknown> = {};
       
       for (const field of config.fields) {
         const fieldValue = values[field.name];
         if (fieldValue === undefined || fieldValue === null) {
-          continue; // Skip undefined/null values
+          continue;
         }
 
         const controlType = this.registry.getControlType(field.type);
@@ -242,9 +338,7 @@ export class DynamicFormComponent {
           continue;
         }
 
-        // Handle different control types
         if (controlType === 'array') {
-          // For FormArray (subforms), create FormGroups for each item
           if (Array.isArray(fieldValue)) {
             formValues[field.name] = fieldValue.map(item => {
               if (typeof item === 'object' && item !== null) {
@@ -254,21 +348,16 @@ export class DynamicFormComponent {
             });
           }
         } else if (controlType === 'group') {
-          // For FormGroup, ensure it's an object
           if (typeof fieldValue === 'object' && fieldValue !== null && !Array.isArray(fieldValue)) {
             formValues[field.name] = fieldValue as Record<string, unknown>;
           }
         } else {
-          // For FormControl, use the value directly
           formValues[field.name] = fieldValue;
         }
       }
 
-      // Use patchValue to set values (allows partial updates)
       form.patchValue(formValues, { emitEvent: false });
       
-      // For FormArrays, we need to manually create and set the FormGroups
-      // Only rebuild if the array is empty or has different length (initial load)
       for (const field of config.fields) {
         const controlType = this.registry.getControlType(field.type);
         if (controlType === 'array' && values[field.name]) {
@@ -276,13 +365,9 @@ export class DynamicFormComponent {
           if (Array.isArray(arrayValue)) {
             const arrayControl = form.get(field.name) as FormArray;
             if (arrayControl) {
-              // Only rebuild if array is empty or length differs (initial load scenario)
-              // This preserves user's drag-and-drop reordering
               if (arrayControl.length === 0 || arrayControl.length !== arrayValue.length) {
-                // Clear existing items more efficiently
                 arrayControl.clear();
                 
-                // Add new items
                 for (const item of arrayValue) {
                   if (typeof item === 'object' && item !== null && !Array.isArray(item)) {
                     const formGroup = this.createFormGroupForSubformItem(field, item as Record<string, unknown>);
@@ -292,14 +377,10 @@ export class DynamicFormComponent {
                   }
                 }
               } else {
-                // Array already has items with same length - just patch values to preserve order
-                // This allows drag-and-drop reordering to persist
                 const currentValues = arrayControl.value;
                 const newValues = arrayValue;
                 
-                // Only patch if values actually differ (to avoid unnecessary updates)
                 if (JSON.stringify(currentValues) !== JSON.stringify(newValues)) {
-                  // Patch values while preserving the order of FormGroups
                   for (let i = 0; i < Math.min(arrayControl.length, newValues.length); i++) {
                     const itemValue = newValues[i];
                     if (typeof itemValue === 'object' && itemValue !== null && !Array.isArray(itemValue)) {
@@ -316,18 +397,23 @@ export class DynamicFormComponent {
         }
       }
 
-      // Update validity after setting values
       form.updateValueAndValidity();
     } catch (error) {
-      // Silently handle errors - form values may be partially set
     }
   }
 
   /**
-   * Create a FormGroup for a subform item based on the field configuration
+   * Creates a FormGroup for a subform item based on the field configuration.
+   * 
+   * This method is used when setting values for subform fields (FormArray). It recursively
+   * creates form controls for each field in the subform configuration, handling nested
+   * structures appropriately.
+   * 
+   * @param field - The subform field configuration
+   * @param itemValue - The value object for this subform item
+   * @returns A FormGroup instance, or null if subform config is missing
    */
   private createFormGroupForSubformItem(field: FormField, itemValue: Record<string, unknown>): FormGroup | null {
-    // Get the subform config from the field config
     const fieldConfig = field.config as { formConfig?: FormConfig } | undefined;
     const subformConfig = fieldConfig?.formConfig;
     

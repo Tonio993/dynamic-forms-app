@@ -7,16 +7,62 @@ import { BaseFieldComponent } from '../base-field.component';
 import { FIELD_COMPONENT_VIEW_PROVIDERS } from '../field-component-constants';
 
 /**
- * Number input component configuration
+ * Configuration interface for number input component.
+ * 
+ * This interface separates validation constraints (min/max) from input clamping
+ * constraints (valueFrom/valueTo), allowing fine-grained control over user input
+ * behavior versus validation rules.
+ * 
+ * @public
  */
 export interface NumberInputConfig {
-  min?: number; // Minimum value for validation
-  max?: number; // Maximum value for validation
-  valueFrom?: number; // Minimum value for clamping (prevents entering values below this)
-  valueTo?: number; // Maximum value for clamping (prevents entering values above this)
+  /** Minimum value for validation (marks form as invalid if value is below this) */
+  min?: number;
+  
+  /** Maximum value for validation (marks form as invalid if value is above this) */
+  max?: number;
+  
+  /** Minimum value for input clamping (prevents entering values below this) */
+  valueFrom?: number;
+  
+  /** Maximum value for input clamping (prevents entering values above this) */
+  valueTo?: number;
+  
+  /** Step value for the number input (used by browser increment/decrement) */
   step?: number;
 }
 
+/**
+ * Number input field component with validation and value clamping support.
+ * 
+ * This component renders a Material Design number input field with support for:
+ * - Numeric validation
+ * - Min/max value validation
+ * - Input clamping (valueFrom/valueTo) to prevent entering out-of-range values
+ * - Custom validators
+ * 
+ * The component distinguishes between validation constraints (min/max) and input
+ * clamping constraints (valueFrom/valueTo), allowing different behaviors for
+ * validation versus user input prevention.
+ * 
+ * @example
+ * ```typescript
+ * {
+ *   name: 'age',
+ *   type: 'number',
+ *   required: true,
+ *   label: 'Age',
+ *   config: {
+ *     min: 18,
+ *     max: 120,
+ *     valueFrom: 0,
+ *     step: 1
+ *   }
+ * }
+ * ```
+ * 
+ * @public
+ */
 @Component({
   selector: 'app-number-input',
   standalone: true,
@@ -26,27 +72,37 @@ export interface NumberInputConfig {
   styleUrls: ['./number-input.css']
 })
 export class NumberInputComponent extends BaseFieldComponent implements OnInit {
+  /** Computed configuration object for this number input */
   readonly config = computed(() => (this.field().config || {}) as NumberInputConfig);
   
-  // Validation constraints (for validators)
+  /** Minimum value for validation */
   readonly min = computed(() => this.config().min);
+  
+  /** Maximum value for validation */
   readonly max = computed(() => this.config().max);
   
-  // Clamping constraints (for input clamping)
+  /** Minimum value for input clamping */
   readonly valueFrom = computed(() => this.config().valueFrom);
+  
+  /** Maximum value for input clamping */
   readonly valueTo = computed(() => this.config().valueTo);
   
+  /** Step value for number input */
   readonly step = computed(() => this.config().step);
 
   /**
-   * Handle input events to enforce valueFrom/valueTo constraints
-   * Prevents users from entering values outside the allowed range (clamping)
+   * Handles input events to enforce valueFrom/valueTo constraints.
+   * 
+   * This method prevents users from entering values outside the allowed range
+   * by clamping the input value. This is separate from validation, which only
+   * marks the form as invalid but doesn't prevent input.
+   * 
+   * @param event - The input event from the HTML input element
    */
   onInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const value = parseFloat(input.value);
 
-    // If value is NaN or empty, allow it (for clearing the field)
     if (isNaN(value) || input.value === '') {
       return;
     }
@@ -56,7 +112,10 @@ export class NumberInputComponent extends BaseFieldComponent implements OnInit {
   }
 
   /**
-   * Number validator to ensure value is a valid number
+   * Validator function to ensure the value is a valid number.
+   * 
+   * @param control - The form control to validate
+   * @returns Validation error object if invalid, null if valid
    */
   private numberValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) {
@@ -66,21 +125,27 @@ export class NumberInputComponent extends BaseFieldComponent implements OnInit {
     return isNumber ? null : { notANumber: true };
   }
 
+  /**
+   * Initializes the component and applies validators to the form control.
+   * 
+   * This method sets up validation rules including:
+   * - Required validator (if field is marked as required)
+   * - Number format validator (always applied)
+   * - Min value validator (if min is specified in config)
+   * - Max value validator (if max is specified in config)
+   * - Custom validators (if provided in field.validators)
+   */
   ngOnInit(): void {
-    // Apply validators to the form control
     const validators: ValidatorFn[] = [];
     const field = this.field();
     const config = this.config();
 
-    // Required validator
     if (field.required === true) {
       validators.push(Validators.required);
     }
 
-    // Always add number validator
     validators.push(this.numberValidator.bind(this));
 
-    // Component-specific validators
     if (config.min !== undefined) {
       validators.push(Validators.min(Number(config.min)));
     }
@@ -88,7 +153,6 @@ export class NumberInputComponent extends BaseFieldComponent implements OnInit {
       validators.push(Validators.max(Number(config.max)));
     }
 
-    // Custom validators from field
     if (field.validators) {
       if (Array.isArray(field.validators)) {
         validators.push(...field.validators);
@@ -97,7 +161,6 @@ export class NumberInputComponent extends BaseFieldComponent implements OnInit {
       }
     }
 
-    // Apply validators to the control
     if (validators.length > 0) {
       this.formControl().setValidators(validators);
       this.formControl().updateValueAndValidity();

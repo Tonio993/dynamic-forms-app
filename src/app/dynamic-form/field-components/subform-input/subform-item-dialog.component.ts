@@ -10,12 +10,49 @@ import { ErrorMessageRegistryService } from '../error-message-registry.service';
 import { FIELD_COMPONENT_VIEW_PROVIDERS } from '../field-component-constants';
 import { ControlType } from '../base-field.component';
 
+/**
+ * Data interface for the subform item dialog.
+ * 
+ * @public
+ */
 export interface SubformItemDialogData {
+  /** The existing form group to edit, or null for a new item */
   formGroup: FormGroup | null;
+  
+  /** The form configuration for the subform item */
   formConfig: FormConfig;
+  
+  /** The dialog title */
   title: string;
 }
 
+/**
+ * Dialog component for adding or editing subform items.
+ * 
+ * This component provides a modal dialog interface for creating or editing
+ * individual items in a subform array. It uses the DynamicFormComponent to
+ * render the nested form structure, ensuring consistency with the main form.
+ * 
+ * The component handles form cloning to prevent direct modification of the
+ * original form group until the user saves. This allows users to cancel
+ * without affecting the original data.
+ * 
+ * @example
+ * ```typescript
+ * const dialogData: SubformItemDialogData = {
+ *   formGroup: existingFormGroup,
+ *   formConfig: subformConfig,
+ *   title: 'Edit Address'
+ * };
+ * 
+ * this.dialog.open(SubformItemDialogComponent, {
+ *   width: '600px',
+ *   data: dialogData
+ * });
+ * ```
+ * 
+ * @public
+ */
 @Component({
   selector: 'app-subform-item-dialog',
   standalone: true,
@@ -37,16 +74,19 @@ export class SubformItemDialogComponent {
   private errorMessageRegistry = inject(ErrorMessageRegistryService);
   private fb = inject(FormBuilder);
 
+  /** The form group instance for this dialog (cloned or newly created) */
   formGroup: FormGroup;
+  
+  /** The form configuration for the subform item */
   formConfig: FormConfig;
+  
+  /** The dialog title */
   title: string;
 
   constructor() {
     this.formConfig = this.data.formConfig;
     this.title = this.data.title;
-    // Create a new form group if one doesn't exist, otherwise clone the existing one
     if (this.data.formGroup) {
-      // Clone the form group to avoid modifying the original
       this.formGroup = this.cloneFormGroup(this.data.formGroup);
     } else {
       this.formGroup = this.createEmptyFormGroup();
@@ -54,7 +94,14 @@ export class SubformItemDialogComponent {
   }
 
   /**
-   * Clone a form group with proper deep cloning of nested controls
+   * Clones a form group with proper deep cloning of nested controls.
+   * 
+   * This method recursively clones FormGroups and FormArrays, preserving
+   * validators and async validators. It ensures that editing in the dialog
+   * doesn't directly modify the original form group until saved.
+   * 
+   * @param original - The original FormGroup to clone
+   * @returns A new FormGroup with cloned controls and validators
    */
   private cloneFormGroup(original: FormGroup): FormGroup {
     const controls: Record<string, FormControl | FormGroup | FormArray> = {};
@@ -75,14 +122,16 @@ export class SubformItemDialogComponent {
     }
 
     const clonedGroup = this.fb.group(controls);
-    // Copy validators
     clonedGroup.setValidators(original.validator);
     clonedGroup.setAsyncValidators(original.asyncValidator);
     return clonedGroup;
   }
 
   /**
-   * Clone a form array
+   * Clones a form array with proper deep cloning of nested controls.
+   * 
+   * @param original - The original FormArray to clone
+   * @returns A new FormArray with cloned controls
    */
   private cloneFormArray(original: FormArray): FormArray {
     const controls: (FormControl | FormGroup | FormArray)[] = [];
@@ -101,7 +150,13 @@ export class SubformItemDialogComponent {
   }
 
   /**
-   * Create an empty form group based on the form config
+   * Creates an empty form group based on the form configuration.
+   * 
+   * This method creates form controls for each field in the configuration,
+   * using the appropriate control type (FormControl, FormGroup, or FormArray)
+   * based on the field's component type.
+   * 
+   * @returns A new FormGroup with empty controls matching the configuration
    */
   private createEmptyFormGroup(): FormGroup {
     const controls: Record<string, FormControl | FormGroup | FormArray> = {};
@@ -123,21 +178,30 @@ export class SubformItemDialogComponent {
   }
 
   /**
-   * Get component type for a field
+   * Gets the component type for a field from the registry.
+   * 
+   * @param field - The field configuration
+   * @returns The component class, or null if not found
    */
   getFieldComponentType(field: FormField): Type<unknown> | null {
     return this.registry.get(field.type);
   }
 
   /**
-   * Get field control from the form group
+   * Gets a field control from the form group.
+   * 
+   * @param fieldName - The name of the field
+   * @returns The AbstractControl instance, or null if not found
    */
   getFieldControl(fieldName: string): AbstractControl | null {
     return this.formGroup.get(fieldName);
   }
 
   /**
-   * Check if a field is invalid
+   * Checks if a field is invalid and touched.
+   * 
+   * @param fieldName - The name of the field to check
+   * @returns True if the field is invalid and touched, false otherwise
    */
   isFieldInvalid(fieldName: string): boolean {
     const control = this.getFieldControl(fieldName);
@@ -145,7 +209,14 @@ export class SubformItemDialogComponent {
   }
 
   /**
-   * Get field error message using the error message registry
+   * Gets the error message for a field using the error message registry.
+   * 
+   * This method attempts to retrieve error messages from the error message
+   * registry first. If no registered message is found, it falls back to
+   * checking for string error values or error objects with a 'message' property.
+   * 
+   * @param fieldName - The name of the field
+   * @returns The error message string, or empty string if no error
    */
   getFieldError(fieldName: string): string {
     const control = this.getFieldControl(fieldName);
@@ -157,7 +228,6 @@ export class SubformItemDialogComponent {
     const field = this.formConfig.fields.find(f => f.name === fieldName);
     const fieldLabel = field?.label || field?.name || fieldName;
 
-    // Try to get error message from registry for each error key
     const errorKeys = Object.keys(errors);
     for (const errorKey of errorKeys) {
       const errorMessage = this.errorMessageRegistry.getErrorMessage(errorKey, errors, fieldLabel);
@@ -165,7 +235,6 @@ export class SubformItemDialogComponent {
         return errorMessage;
       }
 
-      // Handle custom validator errors (fallback)
       const errorValue = errors[errorKey];
       if (typeof errorValue === 'string') {
         return errorValue;
@@ -179,13 +248,15 @@ export class SubformItemDialogComponent {
   }
 
   /**
-   * Save the form and close the dialog
+   * Saves the form and closes the dialog with the form group.
+   * 
+   * If the form is valid, the dialog is closed with the form group as the result.
+   * If invalid, all fields are marked as touched to display validation errors.
    */
   save(): void {
     if (this.formGroup.valid) {
       this.dialogRef.close(this.formGroup);
     } else {
-      // Mark all fields as touched to show validation errors
       const controls = this.formGroup.controls;
       for (const key of Object.keys(controls)) {
         this.formGroup.get(key)?.markAsTouched();
@@ -194,7 +265,10 @@ export class SubformItemDialogComponent {
   }
 
   /**
-   * Cancel and close the dialog
+   * Cancels the dialog without saving changes.
+   * 
+   * Closes the dialog without returning a result, effectively discarding
+   * any changes made in the dialog.
    */
   cancel(): void {
     this.dialogRef.close();

@@ -7,6 +7,16 @@ import { DynamicFormComponent } from './dynamic-form/dynamic-form.component';
 import { FormExamplesComponent } from './form-examples/form-examples.component';
 import { RegistryManagerService } from './dynamic-form/field-components/registry-manager.service';
 
+/**
+ * Root application component.
+ * 
+ * This component serves as the main entry point for the application. It manages
+ * the overall application state, including the current view (main form or examples)
+ * and initializes the registry system to ensure all field components and error
+ * messages are registered before any forms are rendered.
+ * 
+ * @public
+ */
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -21,15 +31,18 @@ import { RegistryManagerService } from './dynamic-form/field-components/registry
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  /** Application title */
   title = 'dynamic-forms-app';
+  
+  /** Signal controlling the current view state */
   currentView = signal<'main' | 'examples'>('main');
 
-  constructor(private registryManager: RegistryManagerService) {
-    // Initialize all registries when the app component is created
-    // This ensures registries are ready before any forms are rendered
-    this.registryManager.initializeAll();
-  }
-
+  /**
+   * Example form configuration for the main view.
+   * 
+   * This configuration demonstrates various field types and their usage.
+   * It serves as a reference implementation for creating dynamic forms.
+   */
   formConfig: FormConfig = {
     name: "User Registration Form",
     fields: [
@@ -129,10 +142,25 @@ export class AppComponent {
     ]
   };
 
+  /**
+   * Constructs the AppComponent and initializes registries.
+   * 
+   * @param registryManager - Service for managing registry initialization
+   */
+  constructor(private registryManager: RegistryManagerService) {
+    this.registryManager.initializeAll();
+  }
+
+  /**
+   * Switches the view to the main form.
+   */
   showMain(): void {
     this.currentView.set('main');
   }
 
+  /**
+   * Switches the view to the examples page.
+   */
   showExamples(): void {
     this.currentView.set('examples');
   }

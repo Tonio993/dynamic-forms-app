@@ -9,6 +9,22 @@ import { FormConfig } from '../models/form-config.model';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 
+/**
+ * Component that displays a collection of example form configurations.
+ * 
+ * This component provides a tabbed interface showcasing various form examples,
+ * including registration forms, contact forms, surveys, and forms with subforms.
+ * It demonstrates the capabilities of the dynamic form system with real-world
+ * use cases.
+ * 
+ * The component includes examples that demonstrate:
+ * - Basic field types and validation
+ * - Custom validators
+ * - Subform arrays with drag-and-drop
+ * - Pre-filled form values
+ * 
+ * @public
+ */
 @Component({
   selector: 'app-form-examples',
   standalone: true,
@@ -24,9 +40,19 @@ import { AbstractControl, ValidationErrors } from '@angular/forms';
   styleUrls: ['./form-examples.component.css']
 })
 export class FormExamplesComponent {
+  /** Signal containing the currently selected example key */
   selectedExample = signal<string>('registration');
+  
+  /** Index of the currently selected tab */
   selectedTabIndex = 0;
 
+  /**
+   * Collection of example form configurations.
+   * 
+   * Each key represents an example identifier, and the value is a complete
+   * FormConfig object that demonstrates different aspects of the dynamic
+   * form system.
+   */
   examples: { [key: string]: FormConfig } = {
     registration: {
       name: "User Registration Form",
@@ -105,16 +131,6 @@ export class FormExamplesComponent {
           placeholder: "your.email@example.com"
         },
         {
-          name: "phone",
-          type: "text",
-          required: false,
-          label: "Phone Number",
-          placeholder: "+1 (555) 123-4567",
-          config: {
-            pattern: "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$"
-          }
-        },
-        {
           name: "subject",
           type: "select",
           required: true,
@@ -128,18 +144,11 @@ export class FormExamplesComponent {
           type: "textarea",
           required: true,
           label: "Message",
-          placeholder: "Please describe your inquiry...",
+          placeholder: "Please share your message...",
           config: {
             minLength: 10,
             maxLength: 1000
           }
-        },
-        {
-          name: "urgent",
-          type: "checkbox",
-          required: false,
-          label: "Urgent Request",
-          placeholder: "Check if this is an urgent matter"
         }
       ]
     },
@@ -147,58 +156,38 @@ export class FormExamplesComponent {
       name: "Customer Satisfaction Survey",
       fields: [
         {
-          name: "customerName",
-          type: "text",
-          required: false,
-          label: "Your Name (Optional)",
-          placeholder: "Enter your name",
-          config: {
-            maxLength: 100
-          }
-        },
-        {
-          name: "rating",
+          name: "satisfaction",
           type: "radio",
           required: true,
-          label: "Overall Rating",
+          label: "How satisfied are you with our service?",
           config: {
-            options: ["Excellent", "Very Good", "Good", "Fair", "Poor"]
+            options: ["Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied"]
           }
         },
         {
           name: "recommend",
           type: "radio",
           required: true,
-          label: "Would you recommend us?",
+          label: "Would you recommend us to others?",
           config: {
             options: ["Definitely", "Probably", "Maybe", "Probably Not", "Definitely Not"]
           }
         },
         {
-          name: "satisfaction",
-          type: "select",
-          required: true,
-          label: "Satisfaction Level",
-          config: {
-            options: ["Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied"]
-          }
-        },
-        {
-          name: "comments",
+          name: "feedback",
           type: "textarea",
           required: false,
-          label: "Additional Comments",
+          label: "Additional Feedback",
           placeholder: "Please share any additional feedback...",
           config: {
             maxLength: 500
           }
         },
         {
-          name: "contactConsent",
+          name: "contact",
           type: "checkbox",
           required: false,
-          label: "Contact Consent",
-          placeholder: "I agree to be contacted for follow-up"
+          label: "I would like to be contacted for follow-up"
         }
       ]
     },
@@ -213,7 +202,7 @@ export class FormExamplesComponent {
           placeholder: "Enter product name",
           config: {
             minLength: 3,
-            maxLength: 200
+            maxLength: 100
           }
         },
         {
@@ -222,7 +211,7 @@ export class FormExamplesComponent {
           required: true,
           label: "Category",
           config: {
-            options: ["Electronics", "Clothing", "Food & Beverage", "Home & Garden", "Sports", "Books", "Other"]
+            options: ["Electronics", "Clothing", "Food", "Books", "Home & Garden", "Other"]
           }
         },
         {
@@ -233,43 +222,31 @@ export class FormExamplesComponent {
           placeholder: "0.00",
           config: {
             min: 0,
-            max: 999999
+            valueFrom: 0,
+            step: 0.01
           }
         },
         {
-          name: "quantity",
+          name: "stock",
           type: "number",
           required: true,
-          label: "Quantity in Stock",
+          label: "Stock Quantity",
           placeholder: "0",
           config: {
             min: 0,
-            max: 1000000
+            valueFrom: 0,
+            step: 1
           }
         },
         {
           name: "description",
           type: "textarea",
-          required: true,
-          label: "Product Description",
-          placeholder: "Describe the product...",
+          required: false,
+          label: "Description",
+          placeholder: "Enter product description...",
           config: {
-            minLength: 20,
-            maxLength: 2000
+            maxLength: 1000
           }
-        },
-        {
-          name: "releaseDate",
-          type: "date",
-          required: false,
-          label: "Release Date"
-        },
-        {
-          name: "inStock",
-          type: "checkbox",
-          required: false,
-          label: "Currently In Stock",
-          placeholder: "Product is available for purchase"
         }
       ]
     },
@@ -280,29 +257,21 @@ export class FormExamplesComponent {
           name: "username",
           type: "text",
           required: true,
-          label: "Username or Email",
-          placeholder: "Enter your username or email",
-          config: {
-            minLength: 3,
-            maxLength: 100
-          }
+          label: "Username",
+          placeholder: "Enter your username"
         },
         {
           name: "password",
           type: "password",
           required: true,
           label: "Password",
-          placeholder: "Enter your password",
-          config: {
-            minLength: 6
-          }
+          placeholder: "Enter your password"
         },
         {
           name: "rememberMe",
           type: "checkbox",
           required: false,
-          label: "Remember Me",
-          placeholder: "Keep me logged in"
+          label: "Remember me"
         }
       ]
     },
@@ -346,6 +315,15 @@ export class FormExamplesComponent {
           placeholder: "+1 (555) 123-4567"
         },
         {
+          name: "department",
+          type: "select",
+          required: true,
+          label: "Department",
+          config: {
+            options: ["Engineering", "Sales", "Marketing", "HR", "Finance", "Operations"]
+          }
+        },
+        {
           name: "addresses",
           type: "subform",
           required: true,
@@ -372,18 +350,15 @@ export class FormExamplesComponent {
                   name: "state",
                   type: "text",
                   required: true,
-                  label: "State/Province",
+                  label: "State",
                   placeholder: "NY"
                 },
                 {
                   name: "zipCode",
                   type: "text",
                   required: true,
-                  label: "ZIP/Postal Code",
-                  placeholder: "10001",
-                  config: {
-                    pattern: "^[0-9]{5}(-[0-9]{4})?$"
-                  }
+                  label: "ZIP Code",
+                  placeholder: "10001"
                 },
                 {
                   name: "country",
@@ -391,13 +366,13 @@ export class FormExamplesComponent {
                   required: true,
                   label: "Country",
                   config: {
-                    options: ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Other"]
+                    options: ["United States", "Canada", "United Kingdom", "Other"]
                   }
                 },
                 {
                   name: "addressType",
                   type: "radio",
-                  required: true,
+                  required: false,
                   label: "Address Type",
                   config: {
                     options: ["Home", "Work", "Other"]
@@ -407,8 +382,8 @@ export class FormExamplesComponent {
             },
             minItems: 1,
             maxItems: 5,
-            addButtonLabel: "Add Address",
-            deleteButtonLabel: "Remove Address",
+            addButtonLabel: 'Add Address',
+            deleteButtonLabel: 'Remove Address',
             allowDelete: true,
             confirmDelete: true,
             deleteConfirmationMessage: "Are you sure you want to remove this address?",
@@ -434,12 +409,19 @@ export class FormExamplesComponent {
           }
         },
         {
-          name: "department",
-          type: "select",
-          required: true,
-          label: "Department",
+          name: "startDate",
+          type: "date",
+          required: false,
+          label: "Start Date"
+        },
+        {
+          name: "notes",
+          type: "textarea",
+          required: false,
+          label: "Additional Notes",
+          placeholder: "Any additional information...",
           config: {
-            options: ["Engineering", "Sales", "Marketing", "HR", "Finance", "Operations"]
+            maxLength: 500
           }
         }
       ]
@@ -447,73 +429,14 @@ export class FormExamplesComponent {
     profileEdit: {
       name: "Edit Profile Form",
       fields: [
-        {
-          name: "firstName",
-          type: "text",
-          required: true,
-          label: "First Name",
-          placeholder: "Enter first name",
-          config: {
-            minLength: 2,
-            maxLength: 50
-          }
-        },
-        {
-          name: "lastName",
-          type: "text",
-          required: true,
-          label: "Last Name",
-          placeholder: "Enter last name",
-          config: {
-            minLength: 2,
-            maxLength: 50
-          }
-        },
-        {
-          name: "email",
-          type: "email",
-          required: true,
-          label: "Email Address",
-          placeholder: "your.email@example.com"
-        },
-        {
-          name: "phone",
-          type: "text",
-          required: false,
-          label: "Phone Number",
-          placeholder: "+1 (555) 123-4567"
-        },
-        {
-          name: "dateOfBirth",
-          type: "date",
-          required: false,
-          label: "Date of Birth"
-        },
-        {
-          name: "bio",
-          type: "textarea",
-          required: false,
-          label: "Biography",
-          placeholder: "Tell us about yourself...",
-          config: {
-            maxLength: 500
-          }
-        },
-        {
-          name: "country",
-          type: "select",
-          required: true,
-          label: "Country",
-          config: {
-            options: ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Spain", "Italy", "Other"]
-          }
-        },
-        {
-          name: "newsletter",
-          type: "checkbox",
-          required: false,
-          label: "Subscribe to newsletter"
-        },
+        { name: "firstName", type: "text", required: true, label: "First Name", placeholder: "Enter first name", config: { minLength: 2, maxLength: 50 } },
+        { name: "lastName", type: "text", required: true, label: "Last Name", placeholder: "Enter last name", config: { minLength: 2, maxLength: 50 } },
+        { name: "email", type: "email", required: true, label: "Email Address", placeholder: "your.email@example.com" },
+        { name: "phone", type: "text", required: false, label: "Phone Number", placeholder: "+1 (555) 123-4567" },
+        { name: "dateOfBirth", type: "date", required: false, label: "Date of Birth" },
+        { name: "bio", type: "textarea", required: false, label: "Biography", placeholder: "Tell us about yourself...", config: { maxLength: 500 } },
+        { name: "country", type: "select", required: true, label: "Country", config: { options: ["United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Spain", "Italy", "Other"] } },
+        { name: "newsletter", type: "checkbox", required: false, label: "Subscribe to newsletter" },
         {
           name: "emergencyContacts",
           type: "subform",
@@ -523,57 +446,22 @@ export class FormExamplesComponent {
             formConfig: {
               name: "Emergency Contact Form",
               fields: [
-                {
-                  name: "name",
-                  type: "text",
-                  required: true,
-                  label: "Contact Name",
-                  placeholder: "Full name"
-                },
-                {
-                  name: "relationship",
-                  type: "select",
-                  required: true,
-                  label: "Relationship",
-                  config: {
-                    options: ["Spouse", "Parent", "Sibling", "Friend", "Colleague", "Other"]
-                  }
-                },
-                {
-                  name: "phone",
-                  type: "text",
-                  required: true,
-                  label: "Phone Number",
-                  placeholder: "+1 (555) 123-4567"
-                },
-                {
-                  name: "email",
-                  type: "email",
-                  required: false,
-                  label: "Email Address",
-                  placeholder: "contact@example.com"
-                }
+                { name: "contactName", type: "text", required: true, label: "Name" },
+                { name: "relationship", type: "select", required: true, label: "Relationship", config: { options: ["Spouse", "Parent", "Child", "Friend", "Other"] } },
+                { name: "contactPhone", type: "text", required: false, label: "Phone" },
+                { name: "contactEmail", type: "email", required: false, label: "Email" }
               ]
             },
             minItems: 0,
             maxItems: 3,
             addButtonLabel: "Add Contact",
             deleteButtonLabel: "Remove Contact",
-            allowDelete: true,
-            confirmDelete: true,
-            deleteConfirmationMessage: "Are you sure you want to remove this emergency contact?",
             allowDragDrop: true,
-            getItemDescription: (formGroup: any, index: number) => {
-              const name = formGroup.get('name')?.value || '';
+            getItemDescription: (formGroup: any) => {
+              const name = formGroup.get('contactName')?.value || 'Unnamed Contact';
               const relationship = formGroup.get('relationship')?.value || '';
-              const phone = formGroup.get('phone')?.value || '';
-              
-              const parts: string[] = [];
-              if (name) parts.push(name);
-              if (relationship) parts.push(`(${relationship})`);
-              if (phone) parts.push(phone);
-              
-              return parts.length > 0 ? parts.join(' - ') : `Contact ${index + 1}`;
+              const phone = formGroup.get('contactPhone')?.value || '';
+              return `${name} (${relationship}) - ${phone}`;
             }
           }
         }
@@ -581,7 +469,12 @@ export class FormExamplesComponent {
     }
   };
 
-  // Pre-filled form values for the profileEdit example
+  /**
+   * Pre-filled form values for the profileEdit example.
+   * 
+   * This object demonstrates how to pre-fill a form with existing data,
+   * including nested subform arrays.
+   */
   profileEditValues = {
     firstName: "John",
     lastName: "Doe",
@@ -592,26 +485,26 @@ export class FormExamplesComponent {
     country: "United States",
     newsletter: true,
     emergencyContacts: [
-      {
-        name: "Jane Doe",
-        relationship: "Spouse",
-        phone: "+1 (555) 987-6543",
-        email: "jane.doe@example.com"
-      },
-      {
-        name: "Robert Smith",
-        relationship: "Friend",
-        phone: "+1 (555) 456-7890",
-        email: "robert.smith@example.com"
-      }
+      { contactName: "Jane Doe", relationship: "Spouse", contactPhone: "555-111-2222", contactEmail: "jane.doe@example.com" },
+      { contactName: "Robert Smith", relationship: "Friend", contactPhone: "555-333-4444", contactEmail: "robert.smith@example.com" }
     ]
   };
 
-  // Computed values
+  /**
+   * Computed signal containing all example keys.
+   * 
+   * @returns Array of example identifier strings
+   */
   exampleKeys = computed(() => Object.keys(this.examples));
 
   /**
-   * Get form values for a specific example
+   * Gets pre-filled form values for a specific example.
+   * 
+   * Currently only the 'profileEdit' example has pre-filled values.
+   * This method can be extended to support pre-filled values for other examples.
+   * 
+   * @param exampleKey - The identifier of the example
+   * @returns Object containing form values, or undefined if no values are configured
    */
   getFormValues(exampleKey: string): Record<string, unknown> | undefined {
     if (exampleKey === 'profileEdit') {
@@ -620,26 +513,43 @@ export class FormExamplesComponent {
     return undefined;
   }
 
+  /**
+   * Selects an example by its key.
+   * 
+   * @param exampleKey - The identifier of the example to select
+   */
   selectExample(exampleKey: string): void {
     this.selectedExample.set(exampleKey);
   }
 
+  /**
+   * Handles tab change events from the Material tabs component.
+   * 
+   * This method coordinates the tab animation with the content update. It updates
+   * the tab index immediately for the animation, then delays the content update
+   * to allow the Material tab animation to start first, creating a smoother
+   * visual experience.
+   * 
+   * @param index - The index of the newly selected tab
+   */
   onTabChange(index: number): void {
     const keys = this.exampleKeys();
     const nextTab = keys[index];
     if (nextTab) {
-      // Update tab index immediately for tab animation
       this.selectedTabIndex = index;
       
-      // Delay content update to allow tab animation to start first
-      // Material tabs animate ~500ms, so we delay slightly to sync with the animation
-      // Using RxJS timer for declarative async scheduling
       timer(150).subscribe(() => {
         this.selectedExample.set(nextTab);
       });
     }
   }
 
+  /**
+   * Gets the display title for an example.
+   * 
+   * @param key - The example identifier
+   * @returns The display title string
+   */
   getExampleTitle(key: string): string {
     const titles: { [key: string]: string } = {
       registration: "Registration",
@@ -653,6 +563,12 @@ export class FormExamplesComponent {
     return titles[key] || key;
   }
 
+  /**
+   * Gets the description text for an example.
+   * 
+   * @param key - The example identifier
+   * @returns The description string explaining what the example demonstrates
+   */
   getExampleDescription(key: string): string {
     const descriptions: { [key: string]: string } = {
       registration: "A comprehensive user registration form with validation for personal information and account creation.",
