@@ -48,7 +48,7 @@ import { FieldComponentRegistryService } from './field-components/field-componen
     MatDividerModule
   ],
   templateUrl: './dynamic-form.component.html',
-  styleUrls: ['./dynamic-form.component.css']
+  styleUrls: ['./dynamic-form.component.scss']
 })
 export class DynamicFormComponent {
   /** Required form configuration that defines the form structure */

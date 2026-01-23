@@ -1,0 +1,46 @@
+/**
+ * App Component Styles
+ */
+
+@use 'variables' as *;
+@use 'functions' as *;
+@use 'mixins' as *;
+
+.app-container {
+  @include flex-column;
+  min-height: 100vh;
+}
+
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: z-index(toolbar);
+  box-shadow: $shadow-sm;
+  background-color: var(--mat-sys-primary, $mat-primary);
+
+  @include respond-below($breakpoint-sm) {
+    font-size: 0.9rem;
+
+    button {
+      padding: 0 8px;
+    }
+  }
+
+  button.active {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.main-content {
+  flex: 1;
+  width: 100%;
+  padding: 0;
+  background-color: var(--mat-sys-surface, $mat-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}

@@ -65,7 +65,7 @@ export interface SubformItemDialogData {
   ],
   viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './subform-item-dialog.component.html',
-  styleUrls: ['./subform-item-dialog.component.css']
+  styleUrls: ['./subform-item-dialog.component.scss']
 })
 export class SubformItemDialogComponent {
   private dialogRef = inject(MatDialogRef<SubformItemDialogComponent>);

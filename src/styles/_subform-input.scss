@@ -1,0 +1,123 @@
+/**
+ * Subform Input Component Styles
+ */
+
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.subform-container {
+  width: 100%;
+  margin-bottom: $spacing-md;
+}
+
+.subform-header {
+  @include flex-between;
+  margin-bottom: $spacing-md;
+}
+
+.empty-state {
+  padding: $spacing-xl;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant, $mat-on-surface-variant);
+  background-color: var(--mat-sys-surface-container, $mat-surface-container);
+  border-radius: $border-radius-sm;
+  margin-bottom: $spacing-md;
+}
+
+.subform-items-wrapper {
+  width: 100%;
+}
+
+.subform-items-list {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.subform-item {
+  border-bottom: 1px solid var(--mat-sys-outline-variant, $mat-outline-variant);
+  height: auto;
+  padding: 12px 0;
+  cursor: default;
+  @include smooth-transition;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .item-content {
+    @include flex-between;
+    width: 100%;
+    padding: 0 $spacing-md;
+    gap: 12px;
+    cursor: default;
+
+    > *:not(.drag-handle) {
+      cursor: default;
+    }
+  }
+
+  &.cdk-drag {
+    cursor: default;
+  }
+
+  &.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.item-description {
+  flex: 1;
+  font-size: 0.95rem;
+  color: var(--mat-sys-on-surface, $mat-on-surface);
+}
+
+.item-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.drag-handle {
+  color: var(--mat-sys-on-surface-variant, $mat-on-surface-variant);
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+  pointer-events: auto;
+  @include transition(color, $transition-fast);
+
+  &:hover,
+  &:active {
+    color: var(--mat-sys-on-surface, $mat-on-surface);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// Drag and drop styling
+.subform-items-list.cdk-drop-list-dragging,
+.subform-items-wrapper.cdk-drop-list-dragging {
+  .subform-item:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+body .cdk-drag-preview {
+  box-shadow: $shadow-lg;
+  opacity: 1;
+  cursor: grabbing;
+  border-radius: $border-radius-sm;
+  overflow: hidden;
+  background-color: var(--mat-sys-surface, $mat-surface);
+
+  .mdc-list-item,
+  .mat-mdc-list-item {
+    background-color: var(--mat-sys-surface, $mat-surface);
+  }
+}

@@ -43,7 +43,7 @@ export interface RadioInputConfig {
   imports: [ReactiveFormsModule, MatRadioModule],
   viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './radio-input.html',
-  styleUrls: ['./radio-input.css']
+  styleUrls: ['./radio-input.scss']
 })
 export class RadioInputComponent extends BaseFieldComponent implements OnInit {
   /** Computed configuration object for this radio input */

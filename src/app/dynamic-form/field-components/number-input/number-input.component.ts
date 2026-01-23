@@ -69,7 +69,7 @@ export interface NumberInputConfig {
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],
   viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './number-input.html',
-  styleUrls: ['./number-input.css']
+  styleUrls: ['./number-input.scss']
 })
 export class NumberInputComponent extends BaseFieldComponent implements OnInit {
   /** Computed configuration object for this number input */

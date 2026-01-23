@@ -1,0 +1,19 @@
+/**
+ * Main Stylesheet
+ * Imports all SCSS partials in the correct order
+ */
+
+// SCSS Partials using @use (modern syntax) - must come before @import
+@use 'styles/variables' as *;
+@use 'styles/functions' as *;
+@use 'styles/mixins' as *;
+@use 'styles/base';
+@use 'styles/components';
+@use 'styles/radio-input';
+@use 'styles/subform-input';
+@use 'styles/subform-dialog';
+@use 'styles/form-examples';
+@use 'styles/app';
+
+// Angular Material Theme (CSS import must come after @use)
+@import '@angular/material/prebuilt-themes/indigo-pink.css';

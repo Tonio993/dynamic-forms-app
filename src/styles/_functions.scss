@@ -1,0 +1,54 @@
+/**
+ * SCSS Functions
+ * Utility functions for calculations and transformations
+ */
+
+@use 'variables' as *;
+
+// ============================================
+// Spacing Functions
+// ============================================
+@function spacing($multiplier: 1) {
+  @return $spacing-md * $multiplier;
+}
+
+// ============================================
+// Color Functions
+// ============================================
+@function rgba-color($color, $opacity: 1) {
+  @return rgba($color, $opacity);
+}
+
+// ============================================
+// Typography Functions
+// ============================================
+@function font-size($size: base) {
+  @if $size == xs {
+    @return $font-size-xs;
+  } @else if $size == sm {
+    @return $font-size-sm;
+  } @else if $size == base {
+    @return $font-size-base;
+  } @else if $size == lg {
+    @return $font-size-lg;
+  } @else if $size == xl {
+    @return $font-size-xl;
+  } @else if $size == xxl {
+    @return $font-size-xxl;
+  }
+  @return $font-size-base;
+}
+
+// ============================================
+// Z-Index Functions
+// ============================================
+@function z-index($layer) {
+  @if $layer == toolbar {
+    @return $z-index-toolbar;
+  } @else if $layer == dialog {
+    @return $z-index-dialog;
+  } @else if $layer == overlay {
+    @return $z-index-overlay;
+  }
+  @return 1;
+}

@@ -67,7 +67,7 @@ export interface PasswordInputConfig {
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule],
   viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './password-input.html',
-  styleUrls: ['./password-input.css']
+  styleUrls: ['./password-input.scss']
 })
 export class PasswordInputComponent extends BaseFieldComponent implements OnInit {
   /** Computed configuration object for this password input */

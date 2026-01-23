@@ -56,7 +56,7 @@ export interface TextareaInputConfig {
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],
   viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './textarea-input.html',
-  styleUrls: ['./textarea-input.css']
+  styleUrls: ['./textarea-input.scss']
 })
 export class TextareaInputComponent extends BaseFieldComponent implements OnInit {
   /** Computed configuration object for this textarea input */

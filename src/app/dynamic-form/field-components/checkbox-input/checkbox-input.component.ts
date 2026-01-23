@@ -29,7 +29,7 @@ import { FIELD_COMPONENT_VIEW_PROVIDERS } from '../field-component-constants';
   imports: [ReactiveFormsModule, MatCheckboxModule],
   viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './checkbox-input.html',
-  styleUrls: ['./checkbox-input.css']
+  styleUrls: ['./checkbox-input.scss']
 })
 export class CheckboxInputComponent extends BaseFieldComponent implements OnInit {
 

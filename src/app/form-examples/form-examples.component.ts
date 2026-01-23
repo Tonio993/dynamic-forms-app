@@ -1,13 +1,13 @@
-import { Component, signal, computed } from '@angular/core';
-import { timer } from 'rxjs';
 import { JsonPipe } from '@angular/common';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatCardModule } from '@angular/material/card';
+import { Component, computed, signal } from '@angular/core';
+import { AbstractControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-import { FormConfig } from '../models/form-config.model';
+import { MatTabsModule } from '@angular/material/tabs';
+import { timer } from 'rxjs';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
-import { AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormConfig } from '../models/form-config.model';
 
 /**
  * Component that displays a collection of example form configurations.
@@ -37,7 +37,7 @@ import { AbstractControl, ValidationErrors } from '@angular/forms';
     MatDividerModule
   ],
   templateUrl: './form-examples.component.html',
-  styleUrls: ['./form-examples.component.css']
+  styleUrls: ['./form-examples.component.scss']
 })
 export class FormExamplesComponent {
   /** Signal containing the currently selected example key */

@@ -1,0 +1,91 @@
+/**
+ * Base Styles
+ * Global base styles and resets
+ */
+
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// ============================================
+// Global Reset
+// ============================================
+* {
+  box-sizing: border-box;
+}
+
+// ============================================
+// Body & HTML
+// ============================================
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: $font-family-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ============================================
+// Common Form Field Styles
+// ============================================
+mat-form-field {
+  @include form-field-base;
+}
+
+// ============================================
+// Common Error Message Styles
+// ============================================
+.error-message {
+  @include error-message;
+}
+
+// ============================================
+// Required Indicator
+// ============================================
+.required-indicator {
+  @include required-indicator;
+}
+
+// ============================================
+// Common Field Container Styles
+// ============================================
+.field-container,
+.checkbox-field-container,
+.radio-field-container {
+  @include form-field-container;
+}
+
+// ============================================
+// Common Label Styles
+// ============================================
+.field-label,
+.checkbox-label,
+.radio-field-label,
+.subform-label {
+  @include form-field-label;
+  
+  // Override for subform-label to use block display
+  &.subform-label {
+    font-size: $font-size-base;
+    display: block;
+  }
+}
+
+.radio-field-label {
+  margin-bottom: 0.75rem;
+}
+
+// ============================================
+// Common Dialog Field Styles
+// ============================================
+.dialog-field {
+  width: 100%;
+
+  &.field-error {
+    margin-bottom: 8px;
+  }
+}

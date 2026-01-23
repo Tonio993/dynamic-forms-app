@@ -115,7 +115,7 @@ export interface SubformInputConfig {
   ],
   viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './subform-input.component.html',
-  styleUrls: ['./subform-input.component.css']
+  styleUrls: ['./subform-input.component.scss']
 })
 export class SubformInputComponent extends BaseFieldComponent implements OnInit {
   /** Computed configuration object for this subform input */

@@ -1,0 +1,120 @@
+/**
+ * Form Examples Component Styles
+ */
+
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.examples-container {
+  width: 100%;
+  max-width: $container-max-width-lg;
+  margin: $spacing-xl auto;
+  padding: 0 $spacing-md;
+
+  @include respond-below($breakpoint-md) {
+    margin: $spacing-md auto;
+    padding: 0 $spacing-sm;
+  }
+}
+
+.examples-header-card {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: $spacing-lg;
+  position: relative;
+  z-index: 1;
+
+  mat-card-header {
+    padding: $spacing-lg;
+  }
+
+  mat-card-title {
+    font-size: $font-size-huge;
+    font-weight: $font-weight-medium;
+    margin-bottom: $spacing-sm;
+  }
+
+  mat-card-subtitle {
+    font-size: $font-size-base;
+    color: var(--mat-sys-on-surface-variant, $mat-on-surface-variant);
+  }
+}
+
+.examples-content-card {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.tab-content {
+  padding: $spacing-xl;
+  opacity: 0;
+  @include transition(opacity, $transition-slow);
+
+  &.content-visible {
+    opacity: 1;
+  }
+
+  @include respond-below($breakpoint-md) {
+    padding: $spacing-md;
+  }
+}
+
+.example-info {
+  margin-bottom: $spacing-xl;
+
+  @include respond-below($breakpoint-md) {
+    margin-bottom: $spacing-lg;
+  }
+
+  h2 {
+    margin: 0 0 $spacing-sm 0;
+    font-size: $font-size-xxl;
+    font-weight: $font-weight-medium;
+    color: var(--mat-sys-on-surface, $mat-on-surface);
+  }
+}
+
+.example-description {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant, $mat-on-surface-variant);
+  font-size: 0.95rem;
+  line-height: $line-height-relaxed;
+}
+
+.json-divider {
+  margin: $spacing-xl 0;
+}
+
+.json-preview {
+  margin-top: $spacing-xl;
+
+  h3 {
+    margin: 0 0 $spacing-md 0;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-medium;
+    color: var(--mat-sys-on-surface, $mat-on-surface);
+  }
+
+  pre {
+    margin: 0;
+    padding: $spacing-lg;
+    background-color: var(--mat-sys-surface-container, $mat-surface-container);
+    border-radius: $border-radius-sm;
+    overflow-x: auto;
+    font-size: $font-size-sm;
+    line-height: $line-height-relaxed;
+
+    @include respond-below($breakpoint-md) {
+      padding: $spacing-md;
+      font-size: 0.8rem;
+    }
+  }
+
+  code {
+    font-family: $font-family-mono;
+    color: var(--mat-sys-on-surface, $mat-on-surface);
+  }
+}

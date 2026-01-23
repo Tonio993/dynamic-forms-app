@@ -1,0 +1,219 @@
+/**
+ * SCSS Mixins
+ * Reusable mixin definitions for common patterns
+ */
+
+@use 'variables' as *;
+
+// ============================================
+// Responsive Breakpoints
+// ============================================
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == sm {
+    @media (max-width: $breakpoint-sm) {
+      @content;
+    }
+  } @else if $breakpoint == md {
+    @media (min-width: #{$breakpoint-sm + 1px}) and (max-width: $breakpoint-md) {
+      @content;
+    }
+  } @else if $breakpoint == lg {
+    @media (min-width: #{$breakpoint-md + 1px}) {
+      @content;
+    }
+  }
+}
+
+@mixin respond-below($breakpoint) {
+  @media (max-width: $breakpoint) {
+    @content;
+  }
+}
+
+@mixin respond-above($breakpoint) {
+  @media (min-width: #{$breakpoint + 1px}) {
+    @content;
+  }
+}
+
+// ============================================
+// Flexbox Utilities
+// ============================================
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-column-center {
+  @include flex-column;
+  align-items: center;
+}
+
+// ============================================
+// Form Field Styles
+// ============================================
+@mixin form-field-base {
+  width: 100%;
+  display: block;
+}
+
+@mixin form-field-container {
+  width: 100%;
+  padding: $spacing-sm 0;
+}
+
+@mixin form-field-label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: var(--mat-sys-on-surface, $mat-on-surface);
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+// ============================================
+// Error Styles
+// ============================================
+@mixin error-message {
+  color: $mat-error;
+  font-size: $font-size-xs;
+  margin-top: $spacing-sm;
+  margin-left: 0;
+  padding-left: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  &::before {
+    content: "⚠";
+    font-size: $font-size-sm;
+  }
+}
+
+@mixin required-indicator {
+  color: $mat-error;
+  margin-left: $spacing-xs;
+  font-weight: $font-weight-medium;
+}
+
+@mixin field-error {
+  border-left: 3px solid $mat-error;
+  padding-left: 0.75rem;
+}
+
+// ============================================
+// Card Styles
+// ============================================
+@mixin card-base {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  box-shadow: $shadow-md;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+}
+
+@mixin card-header-gradient {
+  padding: $spacing-xl $spacing-xl $spacing-md;
+  background: linear-gradient(135deg, var(--mat-sys-primary, $mat-primary) 0%, var(--mat-sys-primary-container, $mat-primary-container) 100%);
+  color: var(--mat-sys-on-primary, $mat-on-primary);
+}
+
+// ============================================
+// Button Styles
+// ============================================
+@mixin button-base {
+  min-width: 120px;
+  height: 42px;
+  font-weight: $font-weight-medium;
+}
+
+@mixin button-full-width {
+  width: 100%;
+  min-width: unset;
+}
+
+// ============================================
+// Display Styles
+// ============================================
+@mixin display-container($bg-color: $mat-surface-container, $border-color: $mat-outline-variant) {
+  margin-top: $spacing-md;
+  padding: $spacing-lg;
+  background-color: $bg-color;
+  border-radius: $border-radius-lg;
+  border: 1px solid $border-color;
+}
+
+@mixin display-content {
+  margin: 0;
+  padding: 1.25rem;
+  background-color: var(--mat-sys-surface, $mat-surface);
+  border-radius: $border-radius-md;
+  overflow-x: auto;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  border: 1px solid var(--mat-sys-outline-variant, $mat-outline-variant);
+  color: var(--mat-sys-on-surface, $mat-on-surface);
+}
+
+// ============================================
+// Transitions
+// ============================================
+@mixin transition($property: all, $duration: $transition-normal, $timing: ease) {
+  transition: $property $duration $timing;
+}
+
+@mixin smooth-transition {
+  @include transition(transform, $transition-normal);
+}
+
+// ============================================
+// Text Utilities
+// ============================================
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-ellipsis($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ============================================
+// Scrollbar Styles
+// ============================================
+@mixin custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--mat-sys-surface-container, $mat-surface-container);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--mat-sys-outline-variant, $mat-outline-variant);
+    border-radius: 4px;
+
+    &:hover {
+      background: var(--mat-sys-on-surface-variant, $mat-on-surface-variant);
+    }
+  }
+}

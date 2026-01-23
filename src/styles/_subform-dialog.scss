@@ -1,0 +1,38 @@
+/**
+ * Subform Item Dialog Component Styles
+ */
+
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.dialog-container {
+  min-width: $dialog-min-width;
+  max-width: $dialog-max-width;
+}
+
+.dialog-content {
+  max-height: $dialog-max-height;
+  overflow-y: auto;
+  padding: 20px 24px;
+  @include custom-scrollbar;
+}
+
+.subform-dialog-form {
+  @include flex-column;
+  gap: $spacing-md;
+  padding-top: 8px;
+}
+
+.dialog-field.field-error {
+  margin-bottom: 8px;
+
+  .error-message {
+    margin-top: 4px;
+    margin-left: $spacing-md;
+  }
+}
+
+mat-dialog-actions {
+  padding: $spacing-md 24px;
+  margin: 0;
+}

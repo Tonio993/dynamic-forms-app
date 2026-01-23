@@ -52,7 +52,7 @@ export interface TextInputConfig {
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],
   viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './text-input.html',
-  styleUrls: ['./text-input.css']
+  styleUrls: ['./text-input.scss']
 })
 export class TextInputComponent extends BaseFieldComponent implements OnInit {
   /** Computed configuration object for this text input */

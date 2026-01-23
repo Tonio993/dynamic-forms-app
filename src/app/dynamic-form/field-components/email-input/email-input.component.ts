@@ -32,7 +32,7 @@ import { FIELD_COMPONENT_VIEW_PROVIDERS } from '../field-component-constants';
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule],
   viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './email-input.html',
-  styleUrls: ['./email-input.css']
+  styleUrls: ['./email-input.scss']
 })
 export class EmailInputComponent extends BaseFieldComponent implements OnInit {
 

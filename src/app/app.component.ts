@@ -28,7 +28,7 @@ import { FormConfig } from './models/form-config.model';
     MatIconModule
   ],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
   /** Application title */

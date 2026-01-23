@@ -38,7 +38,7 @@ import { FIELD_COMPONENT_VIEW_PROVIDERS } from '../field-component-constants';
   ],
   viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './date-input.html',
-  styleUrls: ['./date-input.css']
+  styleUrls: ['./date-input.scss']
 })
 export class DateInputComponent extends BaseFieldComponent implements OnInit {
 

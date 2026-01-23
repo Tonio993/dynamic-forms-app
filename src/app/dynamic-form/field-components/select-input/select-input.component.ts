@@ -48,7 +48,7 @@ export interface SelectInputConfig {
   imports: [ReactiveFormsModule, MatFormFieldModule, MatSelectModule],
   viewProviders: FIELD_COMPONENT_VIEW_PROVIDERS,
   templateUrl: './select-input.html',
-  styleUrls: ['./select-input.css']
+  styleUrls: ['./select-input.scss']
 })
 export class SelectInputComponent extends BaseFieldComponent implements OnInit {
   /** Computed configuration object for this select input */
